@@ -1,0 +1,1023 @@
+ Web-Based Application Development — CSS Basics             .pseudoclass { a:hover { text-decoration: underline; } .psuedoclass input:focus { outline: 2px solid dodgerblue; } button:disabled { opacity: .5; cursor: not-allowed; } /\* Structural \*/ li:first-child { font-weight: 600; } li:nth-child(odd) { background: #f9fafb; } input:required { border: 2px solid orange; } input:optional { border: 2px dashed gray; } input:checked { outline: 2px solid green; } input:invalid { border: 2px solid red; } div:not(.highlight) { color: gray; } .container:focus-within { border: 2px solid dodgerblue; } .required::after { content: " \*"; color: red; font-weight: bold; } .button::after { content: " →"; } .solid { border: 2px solid black; } .dashed { border: 2px dashed #22c55e; } .rounded { border: 3px solid #0ea5e9; border-radius: 12px; } .visible { overflow: visible; } .hidden { overflow: hidden; } .scroll { overflow: scroll; } .auto { overflow: auto; } .block { display: block; } .inline { display: inline; } .inline-block { display: inline-block; width: 100px; } .flex { display: flex; gap: .5rem; } .content-box { width: 200px; padding: 20px; border: 5px solid black; box-sizing: content-box; /\* actual size > 200px \*/ } .border-box { width: 200px; padding: 20px; border: 5px solid black; box-sizing: border-box; /\* stays 200px total \*/ }
+
+![](https://www.iba.edu.pk/favicon.ico) Institute of Business Administration Karachi
+
+[Open Code Editor](https://jsfiddle.net)
+
+CSE 308: Web Based Application Development - Spring 2026
+
+Web Based Application Development
+---------------------------------
+
+### Week 2 Lecture 4
+
+29th January 2026
+
+### What is CSS?
+
+*   CSS describes **how** HTML is presented: colors, layout, fonts, spacing.
+*   “Cascading” = rules combine; conflicts are resolved by specificity and source order.
+*   Styles live in stylesheets and target elements via selectors.
+
+    /* A tiny taste */
+    h1 { color: #1d4ed8; }
+    p { line-height: 1.7; }
+
+### Styled heading
+
+This paragraph reads with comfy line-height.
+
+### Three ways to specify CSS
+
+#### 1) External file (recommended)
+
+    <link rel="stylesheet" href="styles.css">
+
+✔ Reusable, cacheable, keeps HTML clean.
+
+#### 2) <style> tag (page-specific)
+
+    <style>
+      p { color: #374151; }
+    </style>
+
+#### 3) Inline (last resort)
+
+    <p style="color:tomato;">Hello</p>
+
+⚠ Hard to maintain, highest specificity.
+
+### CSS Selectors
+
+    /* Basic */
+    h1 { ... }          /* type */
+    #hero { ... }       /* id */
+    .card { ... }       /* class */
+    
+    /* Combinators */
+    nav a { ... }       /* descendant */
+    .card > h3 { ... }  /* child */
+    
+    .header + p { ... } /* adjacent sibling */
+    li ~ li { ... }     /* general sibling */
+    
+    /* Attribute */
+    input[type="email"] { ... }
+    
+    /* Grouping */
+    h1, h2, h3 { ... }
+
+### Hero title
+
+Only this paragraph right under .card can be targeted with .card > p
+
+[Home](#) · [About](#)
+
+This para follows .header + p idea.
+
+Tip: The more specific selector wins; ties are broken by source order.
+
+Colors
+------
+
+CSS provides multiple ways to define and apply colors. Colors can affect **text**, **backgrounds**, **borders**, and even **shadows**. Common formats include named keywords, hex codes, RGB(A), and HSL(A).
+
+### Named Colors
+
+    h1 { color: teal; }
+    p { background: gold; }
+
+### This is teal text
+
+Gold background
+
+### Hexadecimal
+
+Hex codes use a `#RRGGBB` format (or shorthand `#RGB`) where values range from 00 to FF.
+
+    .brand { color: #0ea5e9; }
+    .alert { background: #f87171; }
+
+#0ea5e9 (brand blue)
+
+#f87171 (alert red)
+
+### RGB / RGBA
+
+RGB defines red, green, blue values (0–255). RGBA adds **alpha** for transparency (0 to 1).
+
+    .btn { background: rgba(34,197,94,.15); }
+    .overlay { background: rgba(0,0,0,.5); }
+
+Light green tint
+
+Black overlay
+
+### HSL (Hue, Saturation, Lightness)
+
+HSL is often easier for designers: `hsl(hue saturation lightness / alpha)`. Hue = color wheel (0–360).
+
+    .muted { color: hsl(220 10% 40%); }
+    .highlight { background: hsl(50 100% 50% / .6); }
+
+Muted bluish gray
+
+Soft yellow highlight
+
+### CSS Custom Properties (Variables)
+
+Use variables for consistent theming and easier maintenance.
+
+    :root {
+      --primary: #6366f1;
+      --secondary: hsl(160 60% 45%);
+    }
+    button {
+      background: var(--primary);
+      color: white;
+    }
+    .card {
+      border: 2px solid var(--secondary);
+    }
+
+Primary Button
+
+Secondary border
+
+CSS Units
+---------
+
+CSS units define **lengths, sizes, and spacing**. They can be **absolute** (fixed values) or **relative** (depend on parent, root, or viewport).
+
+### Absolute Units
+
+Fixed sizes that do not change with screen size.
+
+*   `px` – pixels (commonly used)
+*   `pt` – points (print)
+*   `cm`, `mm`, `in` – rarely used for screen
+
+    h1 { font-size: 32px; }
+    p { font-size: 12pt; }
+
+### 32px Heading
+
+12pt paragraph
+
+### Relative to Font Size
+
+Scale relative to the font size of parent (`em`) or root (`rem`).
+
+    .parent { font-size: 16px; }
+    .child { font-size: 1.5em; } /* 24px */
+    .rem-text { font-size: 2rem; } /* relative to root */
+
+1.5em (24px here)
+
+2rem (relative to root)
+
+### Percentages
+
+Percentages are relative to a parent property (like width or font-size).
+
+    .box { width: 50%; background: lightblue; }
+    p { font-size: 120%; }
+
+50% width box
+
+Font size 120%
+
+### Viewport Units
+
+Relative to the browser window size.
+
+*   `vw` – % of viewport width
+*   `vh` – % of viewport height
+*   `vmin`, `vmax` – smaller or larger of `vw` and `vh`
+
+    h1 { font-size: 5vw; }
+    .full-height { height: 50vh; }
+
+### 5vw Heading
+
+15vh box
+
+### Functions with Units
+
+CSS functions like `calc()`, `min()`, and `max()` combine different units.
+
+    .dynamic {
+      width: calc(100% - 50px);
+    }
+    .text {
+      font-size: min(5vw, 24px);
+    }
+
+calc(100% - 50px)
+
+Responsive text
+
+Text
+----
+
+CSS text properties control **font family, size, weight, style, spacing, alignment, and transformations**. These properties are essential for readability, emphasis, and design aesthetics.
+
+### Font Family
+
+Choose which fonts to use. Always provide a fallback stack.
+
+    body {
+      font-family: system-ui, sans-serif;
+    }
+    .serif {
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    .mono {
+      font-family: "Courier New", monospace;
+    }
+
+System UI Sans
+
+Serif example
+
+Monospace example
+
+### Font Size
+
+Text can be sized using `px`, `em`, `rem`, or modern functions like `clamp()` for fluid typography.
+
+    h1 { font-size: 2rem; }    /* fixed */
+    h2 { font-size: 150%; }    /* relative */
+    h3 { font-size: clamp(1.5rem, 2vw + 1rem, 3rem); }
+
+Fixed size (2rem)
+=================
+
+Relative size (150%)
+--------------------
+
+### Fluid with clamp()
+
+### Line Height
+
+Controls vertical spacing between lines. Good line-height improves readability.
+
+    p.tight { line-height: 1.1; }
+    p.relaxed { line-height: 1.8; }
+
+This paragraph  
+has tight line height.
+
+This paragraph  
+has relaxed line height.
+
+### Font Weight & Style
+
+Use `font-style` for italics and `font-weight` for boldness.
+
+    em { font-style: italic; }
+    strong { font-weight: bold; }
+    .light { font-weight: 300; }
+    .bold { font-weight: 700; }
+
+_Italic text_
+
+**Bold text**
+
+Light weight (300)
+
+Bold weight (700)
+
+### Letter Spacing & Text Transform
+
+Adjust space between letters and change case with `text-transform`.
+
+    .wide { letter-spacing: 4px; }
+    .upper { text-transform: uppercase; }
+    .lower { text-transform: lowercase; }
+    .capitalize { text-transform: capitalize; }
+
+Wide spacing
+
+uppercase text
+
+LOWERCASE TEXT
+
+capitalized text
+
+### Alignment & Decoration
+
+Text can be aligned and styled with underlines, overlines, or strike-through.
+
+    p.center { text-align: center; }
+    p.right { text-align: right; }
+    p.underline { text-decoration: underline; }
+    p.line-through { text-decoration: line-through; }
+
+Centered text
+
+Right aligned
+
+Underlined
+
+Strikethrough
+
+### Small Text & Misc
+
+Use `.small` for secondary or muted information. CSS also supports `sup`, `sub`, and more.
+
+    .small { font-size: .875rem; }
+    sup { font-size: .75em; vertical-align: super; }
+    sub { font-size: .75em; vertical-align: sub; }
+
+Small text
+
+H2O and E = mc2
+
+Pseudo-classes
+--------------
+
+Pseudo-classes define the **state of an element** (like hover, focus, visited) or its **position in the DOM tree** (like first-child, nth-child). They let us style elements without adding extra classes or markup.
+
+### State-based Pseudo-classes
+
+These respond to user interaction or element status.
+
+    a:hover { text-decoration: underline; }
+    a:active { color: red; }
+    a:visited { color: purple; }
+    input:focus { outline: 2px solid dodgerblue; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+[Hover / Active / Visited](#)
+
+Disabled Button
+
+### Structural Pseudo-classes
+
+Style elements based on their position in the DOM.
+
+    li:first-child { font-weight: bold; }
+    li:last-child { color: crimson; }
+    li:nth-child(odd) { background: #f9fafb; }
+    li:nth-child(3) { background: lightyellow; }
+
+*   Item 1 (first-child)
+*   Item 2
+*   Item 3 (nth-child 3)
+*   Item 4
+*   Item 5 (last-child)
+
+### Form & Input Pseudo-classes
+
+Useful for form validation and state-specific styling.
+
+    input:required { border: 2px solid orange; }
+    input:optional { border: 2px dashed gray; }
+    input:checked { outline: 2px solid green; }
+    input:invalid { border: 2px solid red; }
+
+ Checked box
+
+### Negation & Advanced
+
+Apply styles only when a condition is _not_ met, or when focusing inside a container.
+
+    div:not(.highlight) { color: gray; }
+    .container:focus-within { border: 2px solid dodgerblue; }
+
+Normal div (gray)
+
+Div with .highlight (not affected)
+
+Focus inside me:
+
+### ::before
+
+Adds generated content before the element. Often used for icons, markers, or decorations.
+
+    .quote::before {
+      content: "❝";
+      color: dodgerblue;
+      font-size: 2rem;
+      margin-right: .25rem;
+    }
+
+❝ This is a styled quote using ::before
+
+### ::after
+
+Adds generated content after the element. Useful for labels, extra symbols, or clearfix hacks.
+
+    .required::after {
+      content: " *";
+      color: red;
+      font-weight: bold;
+    }
+    .button::after {
+      content: " →";
+    }
+
+Username  
+Continue
+
+### Decorative Shapes
+
+Pseudo-elements can also create shapes and backgrounds for styling without extra markup.
+
+    .badge::after {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: limegreen;
+      border-radius: 50%;
+      margin-left: .5rem;
+    }
+
+Online
+
+Boxes & the Box Model
+---------------------
+
+Every element in CSS is a **box**. The _box model_ describes how width, height, padding, border, and margin work together to determine the final size and spacing of an element.
+
+### Box Structure
+
+The box model has four main layers:
+
+*   **Content** – text or child elements inside
+*   **Padding** – space between content and border
+*   **Border** – line surrounding padding
+*   **Margin** – space outside the element
+
+    .box {
+      width: 200px;
+      height: 100px;
+      padding: 20px;
+      border: 5px solid #3b82f6;
+      margin: 20px;
+    }
+
+![](https://www.simplilearn.com/ice9/free_resources_article_thumb/CSS-Box-Model.png)
+
+### Margin & Padding
+
+**Padding** adds space inside the element; **margin** adds space outside.
+
+    .with-padding { padding: 1rem; }
+    .with-margin { margin: 1rem; }
+    .custom { margin: 1rem 2rem; /* top/bottom, left/right */ }
+
+Padding inside box
+
+Margin around box
+
+### Borders
+
+Borders surround padding and content. You can style their width, color, and style (solid, dashed, dotted, double).
+
+    .solid { border: 2px solid black; }
+    .dashed { border: 2px dashed #22c55e; }
+    .rounded { border: 3px solid #0ea5e9; border-radius: 12px; }
+
+Solid border
+
+Dashed border
+
+Rounded border
+
+### Overflow
+
+Controls what happens when content is bigger than the box.
+
+    .visible { overflow: visible; }
+    .hidden { overflow: hidden; }
+    .scroll { overflow: scroll; }
+    .auto   { overflow: auto; }
+
+Visible overflow content Lorem ipsum dolor sit amet.
+
+Hidden overflow content Lorem ipsum dolor sit amet.
+
+Scroll overflow content Lorem ipsum dolor sit amet.
+
+Auto overflow content Lorem ipsum dolor sit amet.
+
+### Display Types
+
+`display` controls how elements behave in the document flow.
+
+*   `block` – takes full width, new line
+*   `inline` – sits with text, no width/height control
+*   `inline-block` – inline but allows box properties
+*   `flex` – flex container
+*   `grid` – grid container
+
+    .block { display: block; }
+    .inline { display: inline; }
+    .inline-block { display: inline-block; width: 100px; }
+    .flex { display: flex; gap: .5rem; }
+
+Block element Inline Inline Inline-block
+
+Flex 1 Flex 2
+
+### Box Sizing
+
+Defines how width/height is calculated:
+
+*   `content-box` (default) – width excludes padding & border
+*   `border-box` – width includes padding & border
+
+    .content-box {
+      width: 200px;
+      padding: 20px;
+      border: 5px solid black;
+      box-sizing: content-box; /* actual size > 200px */
+    }
+    .border-box {
+      width: 200px;
+      padding: 20px;
+      border: 5px solid black;
+      box-sizing: border-box; /* stays 200px total */
+    }
+
+content-box
+
+border-box
+
+Alignment in CSS
+----------------
+
+CSS alignment controls the positioning of content inside containers and the placement of elements relative to each other. Alignment can apply to **text**, **inline elements**, or **blocks using Flexbox and Grid**.
+
+### Text Alignment
+
+Align inline content inside a block element horizontally.
+
+    p.left { text-align: left; }
+    p.center { text-align: center; }
+    p.right { text-align: right; }
+    p.justify { text-align: justify; }
+
+Left-aligned text
+
+Center-aligned text
+
+Right-aligned text
+
+Justified text for long lines that stretch evenly across the container to create clean edges.
+
+### Vertical Alignment
+
+Align inline or inline-block elements vertically relative to the line.
+
+    img { vertical-align: middle; }
+    sup { vertical-align: super; }
+    sub { vertical-align: sub; }
+
+Normal ![](https://via.placeholder.com/20) Top-aligned image
+
+H2O and E = mc2
+
+### Flexbox Alignment
+
+Flexbox provides powerful alignment options for both main and cross axes.
+
+    .flex { display: flex; }
+    .flex-center { justify-content: center; align-items: center; }
+    .flex-between { justify-content: space-between; }
+    .flex-end { justify-content: flex-end; align-items: flex-end; }
+
+Centered
+
+Space Between End
+
+Bottom Right
+
+### Grid Alignment
+
+CSS Grid allows alignment along both rows and columns using `justify-items` and `align-items` or container-level `justify-content` and `align-content`.
+
+    .grid { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: 50px; }
+    .grid-center { justify-items: center; align-items: center; }
+    .grid-end { justify-items: end; align-items: end; }
+
+1
+
+2
+
+3
+
+1
+
+2
+
+3
+
+### Advanced Alignment
+
+Combine Flexbox/Grid with margins or auto margins for advanced positioning.
+
+    .margin-auto { margin: auto; width: 50px; height: 50px; background: #60a5fa; }
+
+Auto Margin
+
+List, Table and Form Styles
+---------------------------
+
+CSS can be used to style lists, tables, and forms for better readability, structure, and user experience.
+
+### Lists
+
+Lists can be styled with different marker types, positions, and spacing.
+
+    ul.square { list-style: square inside; }
+    ul.circle { list-style-type: circle; list-style-position: outside; }
+    ol.decimal { list-style-type: decimal; padding-left: 1.5rem; }
+    ul.gap { display: flex; flex-direction: column; gap: .25rem; }
+
+*   Square bullets inside
+*   Second item
+
+*   Circle bullet outside
+*   Second item
+
+1.  Ordered item 1
+2.  Ordered item 2
+
+### Tables
+
+Tables can be styled for readability using borders, padding, alternating row colors, and full width.
+
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border:1px solid #e5e7eb; padding:.5rem .75rem; text-align:left; }
+    tr:nth-child(even) { background:#fafafa; }
+    thead { background:#f3f4f6; }
+
+Name
+
+Score
+
+Ada
+
+95
+
+Linus
+
+92
+
+### Form Styles
+
+Form elements can be styled for clarity, spacing, and usability.
+
+    label { display:block; margin:.25rem 0 .15rem; font-weight:500; }
+    input, select, textarea {
+      padding:.5rem .6rem;
+      border:1px solid #d1d5db;
+      border-radius:.5rem;
+      width:100%;
+      box-sizing:border-box;
+    }
+    input:focus, textarea:focus { border-color: #0ea5e9; outline:none; }
+
+Name  Message
+
+### Combined Styling Tips
+
+*   Use consistent spacing (margin & padding) for readability.
+*   Alternate row colors in tables for visual clarity.
+*   Focus states on form inputs improve UX.
+*   Proper list markers help hierarchy and structure.
+
+Layout: Position, Z-Index, Float
+--------------------------------
+
+CSS layout properties control the placement of elements in the document flow. Key properties include **position**, **z-index**, and **float**.
+
+### Positioning
+
+The `position` property determines how an element is placed relative to its parent or the viewport.
+
+    .static { position: static; }    /* default */
+    .relative { position: relative; top: 10px; left: 10px; }
+    .absolute { position: absolute; top: 0; right: 0; }
+    .fixed { position: fixed; bottom: 0; right: 0; }
+    .sticky { position: sticky; top: 0; }
+
+Absolute
+
+Relative
+
+### Z-Index
+
+The `z-index` controls stacking order of positioned elements. Higher values appear on top.
+
+    .box1 { position: absolute; z-index: 1; background: #60a5fa; }
+    .box2 { position: absolute; z-index: 2; background: #f87171; top: 20px; left: 20px; }
+
+### Float
+
+Floating allows content to wrap around an element.
+
+    .float-left { float: left; margin: .5rem; }
+    .float-right { float: right; margin: .5rem; }
+    .clearfix::after { content: ""; display: table; clear: both; }
+
+![](https://placehold.co/100x80) NEW
+
+Text flows around the floated image on the right. The absolute badge stays pinned to the corner.
+
+### Combined Example
+
+You can combine `position`, `z-index`, and `float` for advanced layouts.
+
+![](https://placehold.co/80x60)
+
+Badge
+
+Floating image on the left, badge pinned top-right using absolute and z-index. Text wraps around the image.
+
+Flexbox
+-------
+
+Flexbox is a CSS layout module designed for one-dimensional layouts, either row or column. It simplifies alignment, spacing, and ordering of elements.
+
+### Basic Flex Container
+
+Make a container a flex container to control its children.
+
+    .flex-container {
+      display: flex;
+      gap: .5rem; /* space between items */
+    }
+
+Item 1
+
+Item 2
+
+Item 3
+
+### Main Axis Alignment
+
+Align items along the main axis (row by default) using `justify-content`.
+
+    .justify-start { justify-content: flex-start; }
+    .justify-center { justify-content: center; }
+    .justify-end { justify-content: flex-end; }
+    .justify-between { justify-content: space-between; }
+    .justify-around { justify-content: space-around; }
+    .justify-evenly { justify-content: space-evenly; }
+
+Start Item
+
+Center Item
+
+### Cross Axis Alignment
+
+Align items along the cross axis using `align-items`. Use `align-self` for individual items.
+
+    .align-start { align-items: flex-start; }
+    .align-center { align-items: center; }
+    .align-end { align-items: flex-end; }
+    .item-self { align-self: flex-end; }
+
+Center
+
+Self End
+
+### Flex Direction
+
+Control the main axis direction.
+
+    .row { flex-direction: row; }
+    .row-reverse { flex-direction: row-reverse; }
+    .column { flex-direction: column; }
+    .column-reverse { flex-direction: column-reverse; }
+
+Column 1
+
+Column 2
+
+Column 3
+
+### Wrapping
+
+Control wrapping of items with `flex-wrap`.
+
+    .nowrap { flex-wrap: nowrap; }
+    .wrap { flex-wrap: wrap; }
+    .wrap-reverse { flex-wrap: wrap-reverse; }
+
+1
+
+2
+
+3
+
+4
+
+### Ordering and Flex Grow/Shrink
+
+Control item order and flexibility in the container.
+
+    .order-1 { order: 1; }
+    .flex-grow { flex-grow: 1; }
+    .flex-shrink { flex-shrink: 1; }
+
+Second
+
+First & Grow
+
+Third
+
+CSS Grid Layout
+---------------
+
+CSS Grid is a powerful two-dimensional layout system that allows control over rows and columns, enabling complex layouts with minimal code.
+
+### Basic Grid Container
+
+Turn a container into a grid and define columns and rows.
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: 50px;
+      gap: 10px;
+    }
+
+1
+
+2
+
+3
+
+### Column & Row Sizes
+
+You can define sizes using pixels, percentages, fractions (`fr`), and auto.
+
+    .grid-sizes {
+      grid-template-columns: 1fr 2fr 100px;
+      grid-template-rows: auto 50px;
+    }
+
+fr
+
+2fr
+
+100px
+
+### Item Placement & Spanning
+
+Use `grid-column` and `grid-row` to span items across tracks.
+
+    .item1 { grid-column: 1 / 3; }   /* spans 2 columns */
+    .item2 { grid-row: 2 / 4; }       /* spans 2 rows */
+    .item3 { grid-column: 3; grid-row: 1 / 3; }
+
+Span 2 columns
+
+Span 2 rows
+
+Column 3, 2 rows
+
+### Grid Gap & Alignment
+
+Control spacing between items and alignment along both axes.
+
+    .grid-gap {
+      gap: 10px;               /* row & column spacing */
+      justify-items: center;    /* horizontal alignment of items */
+      align-items: center;      /* vertical alignment of items */
+      justify-content: center;  /* grid content alignment horizontally */
+      align-content: center;    /* grid content alignment vertically */
+    }
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+### Named Grid Areas
+
+Define areas to make layout semantic and easier to manage.
+
+    .grid-areas {
+      display: grid;
+      grid-template-areas:
+        "header header"
+        "sidebar main"
+        "footer footer";
+      grid-template-columns: 100px 200px;
+      grid-template-rows: 50px 100px 30px;
+    }
+
+Header
+
+Sidebar
+
+Main
+
+Footer
+
+### Responsive Grid
+
+Use `auto-fit` and `minmax` to make grids responsive.
+
+    .responsive-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+    }
+
+1
+
+2
+
+3
+
+4
+
+5
+
+Responsive Design
+-----------------
+
+Responsive design ensures that a website looks and works well on all screen sizes, from mobile to desktop.
+
+### Viewport
+
+Always include the viewport meta tag to control scaling on mobile devices:
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+This allows the layout to respond to the actual screen width.
+
+### Fluid Layouts
+
+Use relative units to create flexible layouts that adjust to screen width.
+
+    .container { width: 90%; max-width: 1200px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+    .flex { display: flex; flex-wrap: wrap; gap: 1rem; }
+
+1
+
+2
+
+3
+
+4
+
+### Fluid Typography
+
+Use relative units and `clamp()` to make text scale smoothly.
+
+    h1 { font-size: clamp(1.5rem, 4vw, 3rem); }
+    p  { font-size: 1rem; line-height: 1.6; }
+
+Fluid Heading
+=============
+
+This paragraph uses relative font size and line-height to remain readable on any screen.
+
+### Media Queries
+
+Media queries allow you to change styles based on screen size (breakpoints).
+
+    @media (max-width: 800px) {
+      .header { grid-template-columns: 1fr; } /* stack columns */
+      .container { padding: 1rem; }
+    }
+    @media (min-width: 1200px) {
+      .container { max-width: 1400px; }
+    }
+
+Resize the window to see how the grid and flex layouts adjust at breakpoints.
+
+Mobile-first approach: start simple and enhance styles for larger screens.
+
+### Responsive Spacing with CSS Variables
+
+Use `clamp()` and variables to scale margins and padding fluidly.
+
+    :root { --space: clamp(.75rem, 1vw + .5rem, 2rem); }
+    
+    .wrapper {
+      max-width: 70ch;
+      margin: 0 auto;
+      padding: var(--space);
+    }
+
+This container's padding grows with viewport width but stays within a comfortable range.
+
+Reveal.initialize({ width: 1200, height: 700, slideNumber: 'c/t', controls: true, progress: true, center: true, hash: true, pdfMaxPagesPerSlide: 1, pdfSeparateFragments: false, plugins: \[RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight\] });

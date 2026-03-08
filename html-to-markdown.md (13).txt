@@ -1,0 +1,439 @@
+ Web-Based Application Development — Lecture 12       
+
+![](https://www.iba.edu.pk/favicon.ico) Institute of Business Administration Karachi
+
+CSE 308: Web Based Application Development - Spring 2026
+
+Web Based Application Development
+---------------------------------
+
+### Week 7 Lecture 13
+
+3rd March 2026
+
+Agenda
+------
+
+*   Form Handling & Validation
+*   Environment Variables
+
+Form Handling & Validation
+--------------------------
+
+Building robust forms in React
+
+### Controlled vs Uncontrolled Inputs
+
+#### Controlled (Recommended)
+
+    function Form() {
+      const [value, setValue] = useState('');
+    
+      const handleSubmit = () => {
+        console.log(value); // read current input value from state
+      };
+    
+      return (
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+        <button onClick={handleSubmit}>Submit</button>
+      );
+    }
+    
+    // React state is source of truth
+    // Value always matches state
+    // Can validate on every change
+
+#### Uncontrolled
+
+    function Form() {
+      const inputRef = useRef();
+    
+      const handleSubmit = () => {
+        console.log(inputRef.current.value);  // read value directly from DOM
+      };
+    
+      return (
+        <input ref={inputRef} />
+        <button onClick={handleSubmit}>Submit</button>
+      );
+    }
+    
+    // DOM is source of truth
+    // Use for file inputs
+    // Less React-like
+
+### Multiple Input Handling
+
+    function RegistrationForm() {
+      const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: '',
+        age: '',
+        terms: false
+      });
+    
+      const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+          ...prev,
+          [name]: type === 'checkbox' ? checked : value
+        }));
+      };
+    
+      return (
+        
+          <input name="username" value={formData.username} onChange={handleChange} />
+          <input name="email" type="email" value={formData.email} onChange={handleChange} />
+          <input name="password" type="password" value={formData.password} onChange={handleChange} />
+          <input name="age" type="number" value={formData.age} onChange={handleChange} />
+          <input name="terms" type="checkbox" checked={formData.terms} onChange={handleChange} />
+        
+      );
+    }
+
+### Client-Side Validation
+
+    function LoginForm() {
+      const [form, setForm] = useState({ email: '', password: '' });
+      const [errors, setErrors] = useState({});
+    
+      const validate = () => {
+        const newErrors = {};
+    
+        if (!form.email) {
+          newErrors.email = 'Email is required';
+        } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+          newErrors.email = 'Email is invalid';
+        }
+    
+        if (!form.password) {
+          newErrors.password = 'Password is required';
+        } else if (form.password.length < 6) {
+          newErrors.password = 'Password must be at least 6 characters';
+        }
+    
+        return newErrors;
+      };
+    
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        const newErrors = validate();
+        
+        if (Object.keys(newErrors).length > 0) {
+          setErrors(newErrors);
+          return;
+        }
+    
+        // Submit form
+        console.log('Valid!', form);
+      };
+    
+      return (
+        <form onSubmit={handleSubmit}>
+          <input
+            name="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+          {errors.email && <span style={{color: 'red'}}>{errors.email}</span>}
+    
+          <input
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+          {errors.password && <span style={{color: 'red'}}>{errors.password}</span>}
+    
+          <button type="submit">Login
+      );
+    }
+
+### Real-Time Validation
+
+    function EmailInput() {
+      const [email, setEmail] = useState('');
+      const [error, setError] = useState('');
+      const [touched, setTouched] = useState(false);
+    
+      const validateEmail = (value) => {
+        if (!value) return 'Email is required';
+        if (!/\S+@\S+\.\S+/.test(value)) return 'Email is invalid';
+        return '';
+      };
+    
+      const handleChange = (e) => {
+        const value = e.target.value;
+        setEmail(value);
+        if (touched) {
+          setError(validateEmail(value));
+        }
+      };
+    
+      const handleBlur = () => {
+        setTouched(true);
+        setError(validateEmail(email));
+      };
+    
+      return (
+        
+          <input
+            type="email"
+            value={email}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className={error && touched ? 'error' : ''}
+          />
+          {touched && error && <span style={{color: 'red'}}>{error}</span>}
+        
+      );
+    }
+
+### File Upload Handling
+
+    function FileUpload() {
+      const [file, setFile] = useState(null);
+      const [preview, setPreview] = useState('');
+    
+      const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        
+        if (selectedFile) {
+          setFile(selectedFile);
+          
+          // Create preview for images
+          if (selectedFile.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              setPreview(reader.result);
+            };
+            reader.readAsDataURL(selectedFile);
+          }
+        }
+      };
+    
+      const handleUpload = async () => {
+        const formData = new FormData();
+        formData.append('file', file);
+    
+        try {
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData // Don't set Content-Type header!
+          });
+          const data = await response.json();
+          console.log('Uploaded:', data);
+        } catch (error) {
+          console.error('Upload failed:', error);
+        }
+      };
+    
+      return (
+        <div>
+          <input type="file" onChange={handleFileChange} accept="image/*" />
+          {preview && <img src={preview} alt="Preview" style={ { width: '200px' } } />}
+          <button onClick={handleUpload} disabled={!file}>Upload</button>
+        </div>
+      );
+    }
+
+### Complete Form Example
+
+    
+    
+    function StudentForm({ onSubmit, initialData = {} }) {
+      const [form, setForm] = useState({
+        name: initialData.name || '',
+        email: initialData.email || '',
+        age: initialData.age || '',
+        grade: initialData.grade || 'A'
+      });
+      const [errors, setErrors] = useState({});
+      const [submitting, setSubmitting] = useState(false);
+    
+      const validate = () => {
+        const newErrors = {};
+        if (!form.name.trim()) newErrors.name = 'Name is required';
+        if (!form.email.trim()) newErrors.email = 'Email is required';
+        else if (!/\S+@\S+\.\S+/.test(form.email)) newErrors.email = 'Invalid email';
+        if (!form.age || form.age < 1) newErrors.age = 'Valid age required';
+        return newErrors;
+      };
+    
+      const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm(prev => ({ ...prev, [name]: value }));
+        if (errors[name]) {
+          setErrors(prev => ({ ...prev, [name]: '' }));
+        }
+      };
+    
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        const newErrors = validate();
+    
+        if (Object.keys(newErrors).length > 0) {
+          setErrors(newErrors);
+          return;
+        }
+    
+        setSubmitting(true);
+        try {
+          await onSubmit(form);
+          setForm({ name: '', email: '', age: '', grade: 'A' });
+          setErrors({});
+        } catch (error) {
+          setErrors({ submit: error.message });
+        } finally {
+          setSubmitting(false);
+        }
+      };
+    
+      return (
+        <form onSubmit={handleSubmit}>
+          <div>
+            <input name="name" value={form.name} onChange={handleChange} placeholder="Name" />
+            {errors.name && <span className="error">{errors.name}</span>}
+          </div>
+    
+          <div>
+            <input name="email" value={form.email} onChange={handleChange} placeholder="Email" />
+            {errors.email && <span className="error">{errors.email}</span>}
+          </div>
+    
+          <div>
+            <input name="age" type="number" value={form.age} onChange={handleChange} placeholder="Age" />
+            {errors.age && <span className="error">{errors.age}</span>}
+          </div>
+    
+          <div>
+            <select name="grade" value={form.grade} onChange={handleChange}>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+            </select>
+          </div>
+    
+          {errors.submit && <div className="error">{errors.submit}</div>}
+    
+          <button type="submit" disabled={submitting}>
+            {submitting ? 'Submitting...' : 'Submit'}
+          </button>
+        </form>
+      );
+    }
+    
+    
+
+Environment Variables
+---------------------
+
+Managing configuration in React
+
+### What are Environment Variables?
+
+*   Configuration values that change between environments
+*   Different settings for development, staging, production
+*   Keep sensitive data out of source code
+*   API URLs, API keys, feature flags
+
+### Environment Variables in Vite
+
+Create `.env` file in project root
+
+    # .env
+    VITE_API_URL=http://localhost:3000/api
+    VITE_APP_NAME=My App
+    VITE_ENABLE_ANALYTICS=false
+    VITE_API_KEY=your-api-key-here
+    
+    # Variables MUST start with VITE_ to be accessible
+    # Non-VITE_ variables are ignored for security
+
+⚠️ Never commit .env files with secrets! Add to .gitignore
+
+### Using Environment Variables
+
+    // Access via import.meta.env
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const appName = import.meta.env.VITE_APP_NAME;
+    const enableAnalytics = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
+    
+    // Example: API configuration
+    import axios from 'axios';
+    
+    const api = axios.create({
+      baseURL: import.meta.env.VITE_API_URL,
+      headers: {
+        'X-API-Key': import.meta.env.VITE_API_KEY
+      }
+    });
+    
+    export default api;
+    
+    // Example: Conditional features
+    function App() {
+      return (
+        
+          {import.meta.env.VITE_APP_NAME}
+          {import.meta.env.VITE_ENABLE_ANALYTICS === 'true' && (
+            
+          )}
+        
+      );
+    }
+
+### Multiple Environment Files
+
+    # .env - Base (committed to git)
+    VITE_APP_NAME=My App
+    
+    # .env.local - Local overrides (gitignored)
+    VITE_API_URL=http://localhost:3000/api
+    VITE_API_KEY=dev-key-123
+    
+    # .env.development - Development (committed)
+    VITE_API_URL=https://dev-api.example.com
+    VITE_ENABLE_DEBUG=true
+    
+    # .env.production - Production (committed)
+    VITE_API_URL=https://api.example.com
+    VITE_ENABLE_DEBUG=false
+    VITE_ENABLE_ANALYTICS=true
+
+Vite automatically loads the correct file based on mode
+
+### Built-in Environment Variables
+
+    // Vite provides these automatically
+    
+    // Current mode: 'development' or 'production'
+    console.log(import.meta.env.MODE);
+    
+    // Base URL for your app
+    console.log(import.meta.env.BASE_URL);
+    
+    // Is production build?
+    console.log(import.meta.env.PROD); // boolean
+    
+    // Is development build?
+    console.log(import.meta.env.DEV); // boolean
+    
+    // Server-side rendering?
+    console.log(import.meta.env.SSR); // boolean
+    
+    // Example usage
+    if (import.meta.env.DEV) {
+      console.log('Running in development mode');
+    }
+    
+    if (import.meta.env.PROD) {
+      // Enable analytics only in production
+      initializeAnalytics();
+    }
+
+Reveal.initialize({ width: 1200, height: 700, slideNumber: 'c/t', controls: true, progress: true, center: true, hash: true, plugins: \[RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight\] }); const { createApp, ref } = Vue; createApp({ setup() { return { count: ref(0) } } }).mount('#app')

@@ -1,0 +1,1034 @@
+ Web-Based Application Development — Lecture 9        .reveal pre { width: 100%; font-size: 0.45em; } .reveal code { max-height: 500px; } .note { font-size: 0.7em; color: #666; font-style: italic; }
+
+![](https://www.iba.edu.pk/favicon.ico) Institute of Business Administration Karachi
+
+CSE 308: Web Based Application Development - Spring 2026
+
+Web Based Application Development
+---------------------------------
+
+### Week 5 Lecture 9
+
+17th Feburary 2026
+
+### Agenda
+
+*   Server-Side Rendering (SSR) vs Single Page Applications (SPA)
+*   Introduction to React.js
+*   Setting Up a React Project
+*   Understanding JSX
+*   React Components & State Management
+*   Building Interactive Applications
+
+### Decisions in Web Development
+
+Building a new website or web application from scratch can be tricky, particularly because of the various decisions developers have to make, like "Which CSS framework should I use?" or "Should I have a light/dark mode switcher?"
+
+Another important decision that can truly affect several aspects of a web project—its performance, SEO, page load speed, and user experience— is the rendering method you choose.
+
+The two most popular strategies are Client-Side Rendering (CSR) and Server-Side Rendering (SSR).
+
+### Client-Side Rendering (CSR)
+
+Client-side rendering (CSR) is a JavaScript rendering technique where the final HTML content and user interface (UI) components are generated on the client's browser using JavaScript.
+
+*   The server sends an initial HTML file with minimal content
+*   The client-side JavaScript code fetches data from the server
+*   The JavaScript code renders the complete UI on the browser
+
+### CSR Advantages & Use Cases
+
+A major advantage of CSR is its ability to create highly interactive and dynamic web applications.
+
+Best fit for chat apps, social media platforms, and single-page applications (SPAs) where content frequently updates without full page reload.
+
+Popular frameworks include React, Vue.js, Angular, Svelte, Backbone.js, and Ember.js.
+
+### Client-Side Rendering (CSR) Workflow
+
+#### What Happens in CSR?
+
+*   Server sends minimal HTML
+*   Browser loads CSS & JavaScript
+*   JavaScript builds the UI
+*   App fetches data from APIs
+*   UI updates dynamically
+
+### Client-Side Rendering (CSR) Workflow
+
+#### Step-by-Step Breakdown
+
+**1.** Server → Sends empty HTML shell
+
+**2.** Browser → Parses HTML (creates DOM)
+
+**3.** Browser → Downloads JS bundle
+
+**4.** JavaScript → Renders components
+
+**5.** App → Fetches data from APIs
+
+**6.** UI → Updates without page reload
+
+### Advantages of Client-Side Rendering
+
+Provides faster interactivity — CSR not only renders the page in the browser but also updates content instantly. Users get near-instant feedback on actions like button clicks and form submissions without a full page reload.
+
+Reduced server load — with CSR, the server mainly sends a minimal HTML file, while the browser handles rendering. This reduces strain on the server during high-traffic periods.
+
+Great for dynamic updates — CSR works well for real-time dashboards, collaborative tools, and online games where content changes frequently without requiring page reloads.
+
+#### Disadvantages of Client-Side Rendering
+
+SEO limitations — CSR sends mostly empty HTML at first, making it harder for crawlers to index content. This hurts search rankings, so CSR is not ideal for SEO-focused sites but fine for apps like chats or dashboards.
+
+Longer initial load — the browser must download & run JavaScript before rendering. Users may see a blank page or loading screen, especially on slow networks or large apps. Code splitting and lazy-loading can ease this.
+
+Caching delay — pages can't be cached until JavaScript executes, potentially slowing repeat visits. Proper caching strategies help but require extra setup.
+
+JavaScript dependency — if JavaScript is disabled, users only see the bare HTML shell, leading to a broken experience.
+
+### Server-Side Rendering (SSR)
+
+Server-side rendering (SSR) is a web development technique where the server generates and sends a fully rendered HTML page to the client's browser.
+
+*   The server processes the request and generates complete HTML
+*   The browser receives ready-to-display content
+*   JavaScript hydrates the page for interactivity
+
+### Server-Side Rendering (SSR) Workflow
+
+#### What Happens in SSR?
+
+*   Browser requests a page
+*   Server fetches required data
+*   Server generates full HTML
+*   Browser receives ready-to-display page
+*   JavaScript hydrates for interactivity
+
+### Server-Side Rendering (SSR) Workflow
+
+#### Step-by-Step Breakdown
+
+**1.** Browser → Sends request to server
+
+**2.** Server → Fetches data (DB / APIs)
+
+**3.** Server → Renders complete HTML
+
+**4.** Browser → Displays content immediately
+
+**5.** JavaScript → Hydrates page
+
+**6.** Page becomes fully interactive
+
+### SSR Advantages & Use Cases
+
+Better SEO — search engines can easily crawl and index fully rendered HTML pages.
+
+Faster initial load — users see content immediately without waiting for JavaScript to execute.
+
+Best for blogs, e-commerce sites, news websites, and marketing pages where SEO is crucial.
+
+Popular frameworks include Next.js (React), Nuxt.js (Vue), Remix, and SvelteKit.
+
+### Disadvantages of Server-Side Rendering
+
+Increased server load — the server must render the entire UI for each request, which can strain resources under heavy traffic or many concurrent users.
+
+Delayed interactivity — updates require round-trips to the server, which can slow responsiveness compared to CSR. This makes SSR better for static-focused sites like blogs and landing pages.
+
+### CSR vs SSR - Key Differences
+
+Aspect
+
+CSR (Client-Side)
+
+SSR (Server-Side)
+
+Initial Load
+
+Slower (download + execute JS)
+
+Faster (pre-rendered HTML)
+
+Interactivity
+
+Highly interactive after load
+
+Limited until JS hydrates
+
+SEO
+
+Poor (empty initial HTML)
+
+Excellent (full HTML)
+
+Use Cases
+
+SPAs, dashboards, web apps
+
+Blogs, e-commerce, content sites
+
+Frameworks
+
+React, Vue, Angular
+
+Next.js, Nuxt.js, Remix
+
+### Why Frameworks Are Widely Used
+
+Faster development — frameworks provide ready-made components, templates, and utilities that reduce repetitive coding.
+
+Consistency and standards — they enforce coding best practices, making applications easier to read, maintain, and scale.
+
+Cross-browser and device support — frameworks handle many quirks and compatibility issues out of the box.
+
+Ecosystem and community — strong communities offer plugins, tools, and support, speeding up problem-solving and innovation.
+
+### What is React?
+
+A JavaScript library for building user interfaces
+
+*   Created by Facebook (Meta) in 2013
+*   Most popular frontend library
+*   Component-based architecture
+*   Declarative programming model
+*   Virtual DOM for efficient updates
+
+### The Problem React Solves
+
+DOM manipulation is messy and error-prone
+
+    // Traditional approach - manual DOM updates
+    const button = document.getElementById('btn');
+    const counter = document.getElementById('counter');
+    let count = 0;
+    
+    button.addEventListener('click', () => {
+      count++;
+      counter.textContent = count;  // Manually update DOM
+      if (count > 10) {
+        counter.style.color = 'red';  // More manual updates
+      }
+      // What if you forget to update something?
+    });
+
+Keeping UI in sync with data is hard — You have to manually update every part of the UI when data changes. Bugs happen when you forget to update something.
+
+React automates UI updates — Just change the data (state), and React automatically updates the UI for you.
+
+### How React Thinks
+
+UI = f(state)
+
+User Interface is a function of state
+
+**What this means:** Your UI is completely determined by your data (state)
+
+**Change the state** → React automatically updates the UI
+
+**Same state** → Always produces the same UI
+
+**You don't tell React HOW to update the DOM** — You just describe WHAT the UI should look like
+
+### Why Choose React?
+
+*   Declarative — Describe what you want, React handles how
+*   Component reusability — Build once, use everywhere
+*   Virtual DOM — Fast, efficient UI updates
+*   Rich ecosystem — Tons of libraries and tools
+*   Strong community — Active support and resources
+*   Easy to learn — Just JavaScript, no new template syntax
+
+### Prerequisites for React Development
+
+You need to have installed:
+
+*   **Node.js** (v16 or higher)
+    *   JavaScript runtime for running tools
+    *   Download from nodejs.org
+*   **npm** (comes with Node.js)
+    *   Package manager for installing libraries
+*   **Code Editor** (VS Code recommended)
+
+    # Verify installation
+    node --version
+    npm --version
+
+#### Creating Your First React Project
+
+We'll use **Vite** - a fast, modern build tool
+
+    # Create a new React project
+    npm create vite@latest my-react-app -- --template react
+    
+    # Navigate to project folder
+    cd my-react-app
+    
+    # Install dependencies
+    npm install
+    
+    # Start development server
+    npm run dev
+
+Your app will run at http://localhost:5173
+
+#### React Project Structure
+
+    my-react-app/
+    ├── node_modules/      # Dependencies (don't edit)
+    ├── public/            # Static files (images, icons)
+    ├── src/               # Your source code
+    │   ├── App.jsx        # Main App component
+    │   ├── App.css        # App styles
+    │   ├── main.jsx       # Entry point
+    │   └── index.css      # Global styles
+    ├── index.html         # HTML template
+    ├── package.json       # Project configuration
+    └── vite.config.js     # Vite configuration
+
+Focus on the **src/** folder - that's where you'll work
+
+#### Entry Point: main.jsx
+
+This file bootstraps your React app
+
+    import React from 'react'
+    import ReactDOM from 'react-dom/client'
+    import App from './App.jsx'
+    import './index.css'
+    
+    // Find the root element in index.html
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <React.StrictMode>
+        <App />  {/* Your main component */}
+      </React.StrictMode>
+    )
+
+**What this does:**
+
+*   Finds the 'root' div in index.html
+*   Renders the App component inside it
+*   StrictMode helps catch potential problems
+
+#### Your First Component: App.jsx
+
+    function App() {
+      return (
+        <div>
+          <h1>Hello, React!</h1>
+          <p>Welcome to your first React app</p>
+        </div>
+      )
+    }
+    
+    export default App
+
+**Key points:**
+
+*   A component is just a JavaScript function
+*   It returns JSX (looks like HTML)
+*   Must export the component (default or named)
+*   Component names must start with capital letter
+
+#### JSX - JavaScript XML
+
+Syntax extension that looks like HTML but is JavaScript
+
+    // JSX code
+    const element = <h1 className="greeting">Hello!</h1>;
+    
+    // Compiles to JavaScript
+    const element = React.createElement('h1', {className: 'greeting'}, 'Hello!');
+
+**JSX Rules:**
+
+*   Single root element (or use Fragment <></>)
+*   Close all tags (<img />, <input />)
+*   Use camelCase (className, onClick, htmlFor)
+*   Use {} for JavaScript expressions
+
+#### JSX vs HTML - Important Differences
+
+HTML:
+
+    <div class="container">
+      <label for="name">Name</label>
+      <input type="text">
+      <br>
+      <img src="logo.png">
+    </div>
+
+JSX:
+
+    <div className="container">
+      <label htmlFor="name">Name</label>
+      <input type="text" />
+      <br />
+      <img src="logo.png" />
+    </div>
+
+className (not class), htmlFor (not for), self-closing tags required
+
+#### Embedding JavaScript in JSX
+
+    function Profile() {
+      const user = { name: 'Alice', age: 25 };
+      const isActive = true;
+      
+      return (
+        <div>
+          <h1>{user.name}</h1>  {/* Variables */}
+          <p>Age: {user.age + 1}</p>  {/* Expressions */}
+          <p>{user.age >= 18 ? 'Adult' : 'Minor'}</p>  {/* Ternary */}
+          <p>{isActive && 'Active User'}</p>  {/* Conditional */}
+        </div>
+      )
+    }
+
+Anything inside {} is evaluated as JavaScript
+
+#### Fragments - Returning Multiple Elements
+
+    // ❌ Error - multiple root elements
+    function Wrong() {
+      return (
+        <h1>Title</h1>
+        <p>Description</p>
+      )
+    }
+    
+    // ✅ Solution 1: Wrap in div
+    function WithDiv() {
+      return (
+        <div>
+          <h1>Title</h1>
+          <p>Description</p>
+        </div>
+      )
+    }
+    
+    // ✅ Solution 2: Use Fragment (no extra DOM node)
+    function WithFragment() {
+      return (
+        <>
+          <h1>Title</h1>
+          <p>Description</p>
+        </>
+      )
+    }
+
+#### Styling Components
+
+    function StyledComponent() {
+      // Inline styles (camelCase, object)
+      const boxStyle = {
+        backgroundColor: 'blue',
+        fontSize: '20px',
+        padding: '10px'
+      };
+    
+      return (
+        <div>
+          {/* Method 1: CSS classes */}
+          <h1 className="title">Hello</h1>
+          
+          {/* Method 2: Inline styles */}
+          <div style={boxStyle}>Styled Box</div>
+          
+          {/* Method 3: Inline object */}
+          <p style={{ color: 'red', margin: '10px' }}>Red text</p>
+        </div>
+      )
+    }
+
+#### JavaScript You Need to Know
+
+    // 1. Arrow Functions
+    const greet = (name) => `Hello ${name}`;
+    
+    // 2. Array map - transform arrays
+    const numbers = [1, 2, 3];
+    const doubled = numbers.map(n => n * 2);  // [2, 4, 6]
+    
+    // 3. Spread operator - copy/merge
+    const arr1 = [1, 2];
+    const arr2 = [...arr1, 3, 4];  // [1, 2, 3, 4]
+    
+    const obj1 = { name: 'Ali' };
+    const obj2 = { ...obj1, age: 20 };  // { name: 'Ali', age: 20 }
+    
+    // 4. Destructuring - extract values
+    const user = { name: 'Sara', age: 22 };
+    const { name, age } = user;  // name='Sara', age=22
+    
+    const [first, second] = [10, 20];  // first=10, second=20
+
+#### Creating Components
+
+    // Component = reusable piece of UI
+    
+    function Welcome() {
+      return <h1>Welcome!</h1>;
+    }
+    
+    function UserCard() {
+      return (
+        <div className="card">
+          <h2>John Doe</h2>
+          <p>Developer</p>
+        </div>
+      );
+    }
+    
+    // Use components like HTML tags
+    function App() {
+      return (
+        <div>
+          <Welcome />
+          <UserCard />
+          <UserCard />
+        </div>
+      );
+    }
+
+#### Rendering Lists with .map()
+
+    function TodoList() {
+      const todos = ['Learn React', 'Build project', 'Deploy app'];
+    
+      return (
+        <ul>
+          {todos.map((todo, index) => (
+            <li key={index}>{todo}</li>
+          ))}
+        </ul>
+      );
+    }
+    
+    // With objects
+    function UserList() {
+      const users = [
+        { id: 1, name: 'Alice' },
+        { id: 2, name: 'Bob' }
+      ];
+    
+      return (
+        <ul>
+          {users.map(user => (
+            <li key={user.id}>{user.name}</li>  {/* key is required! */}
+          ))}
+        </ul>
+      );
+    }
+
+Always provide a unique 'key' prop when rendering lists
+
+#### Component Tree - Building Real Apps
+
+Components form a hierarchy, like a family tree
+
+    App
+    ├── Navbar
+    │   ├── Logo
+    │   └── Menu
+    │       ├── MenuItem
+    │       ├── MenuItem
+    │       └── MenuItem
+    ├── Dashboard
+    │   ├── Sidebar
+    │   │   ├── UserProfile
+    │   │   └── Navigation
+    │   └── MainContent
+    │       ├── Card
+    │       ├── Card
+    │       └── Card
+    └── Footer
+        ├── SocialLinks
+        └── Copyright
+
+**Parent components** can contain multiple **child components**
+
+Each component is independent and reusable
+
+This structure makes complex UIs manageable and maintainable
+
+#### The Problem: UI Doesn't Update
+
+    function BrokenCounter() {
+      let count = 0;  // ❌ Regular variable
+    
+      function increment() {
+        count = count + 1;
+        console.log(count);  // This logs correctly
+        // But UI doesn't update!
+      }
+    
+      return (
+        <div>
+          <p>Count: {count}</p>  {/* Always shows 0 */}
+          <button onClick={increment}>+1</button>
+        </div>
+      );
+    }
+
+React doesn't know when variables change. We need **state**!
+
+#### useState - Making Components Interactive
+
+    import { useState } from 'react';
+    
+    function Counter() {
+      // [currentValue, functionToUpdate]
+      const [count, setCount] = useState(0);  // 0 is initial value
+    
+      return (
+        <div>
+          <p>Count: {count}</p>
+          <button onClick={() => setCount(count + 1)}>+1</button>
+          <button onClick={() => setCount(count - 1)}>-1</button>
+          <button onClick={() => setCount(0)}>Reset</button>
+        </div>
+      );
+    }
+
+**How it works:**
+
+*   useState returns \[value, setter function\]
+*   Calling setter updates value and re-renders UI
+*   Initial value is used on first render only
+
+#### State Update Rules
+
+    // ❌ NEVER mutate state directly
+    function Wrong() {
+      const [user, setUser] = useState({ name: 'Ali', age: 20 });
+      
+      user.age = 21;  // ❌ Direct mutation - won't trigger re-render
+    }
+    
+    // ✅ Always create new object/array
+    function Correct() {
+      const [user, setUser] = useState({ name: 'Ali', age: 20 });
+      
+      // Use spread operator to copy and update
+      setUser({ ...user, age: 21 });  // ✅
+    }
+    
+    // For arrays
+    function TodoApp() {
+      const [todos, setTodos] = useState(['Task 1']);
+      
+      // ❌ todos.push('Task 2');
+      // ✅ setTodos([...todos, 'Task 2']);
+    }
+
+#### Multiple State Variables
+
+    function Form() {
+      const [name, setName] = useState('');
+      const [email, setEmail] = useState('');
+      const [age, setAge] = useState(0);
+    
+      return (
+        <form>
+          <input 
+            value={name} 
+            onChange={(e) => setName(e.target.value)} 
+            placeholder="Name"
+          />
+          <input 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            placeholder="Email"
+          />
+          <input 
+            type="number" 
+            value={age} 
+            onChange={(e) => setAge(e.target.value)} 
+          />
+        </form>
+      );
+    }
+
+#### State with Objects - Single State Variable
+
+    function Form() {
+      const [form, setForm] = useState({
+        name: '',
+        email: '',
+        age: 0
+      });
+    
+      const handleChange = (e) => {
+        setForm({
+          ...form,  // Keep existing fields
+          [e.target.name]: e.target.value  // Update changed field
+        });
+      };
+    
+      return (
+        <form>
+          <input name="name" value={form.name} onChange={handleChange} />
+          <input name="email" value={form.email} onChange={handleChange} />
+          <input name="age" type="number" value={form.age} onChange={handleChange} />
+          <p>Name: {form.name}</p>
+        </form>
+      );
+    }
+
+#### useEffect - Side Effects in React
+
+Run code after component renders (API calls, timers, subscriptions)
+
+    import { useState, useEffect } from 'react';
+    
+    function Example() {
+      const [count, setCount] = useState(0);
+    
+      // Runs after every render
+      useEffect(() => {
+        document.title = `Count: ${count}`;
+      });
+    
+      // Runs only once (on mount)
+      useEffect(() => {
+        console.log('Component mounted');
+      }, []);  // Empty dependency array
+    
+      // Runs when count changes
+      useEffect(() => {
+        console.log('Count changed to:', count);
+      }, [count]);  // Dependency array
+    
+      return <button onClick={() => setCount(count + 1)}>{count}</button>;
+    }
+
+#### Fetching Data with useEffect
+
+    import { useState, useEffect } from 'react';
+    
+    function Users() {
+      const [users, setUsers] = useState([]);
+      const [loading, setLoading] = useState(true);
+    
+      useEffect(() => {
+        // Fetch data when component mounts
+        fetch('https://api.example.com/users')
+          .then(res => res.json())
+          .then(data => {
+            setUsers(data);
+            setLoading(false);
+          });
+      }, []);  // Empty array = run once on mount
+    
+      if (loading) return <p>Loading...</p>;
+    
+      return (
+        <ul>
+          {users.map(user => (
+            <li key={user.id}>{user.name}</li>
+          ))}
+        </ul>
+      );
+    }
+
+#### Event Handling in React
+
+    function EventExamples() {
+      const handleClick = () => alert('Clicked!');
+      const handleChange = (e) => console.log(e.target.value);
+      const handleSubmit = (e) => {
+        e.preventDefault();  // Prevent page reload
+        console.log('Form submitted');
+      };
+      const handleDelete = (id) => {
+        console.log("Deleting item:", id);
+      };
+    
+      return (
+        <div>
+          {/* camelCase event names */}
+          <button onClick={handleClick}>Click Me</button>
+          <input onChange={handleChange} placeholder="Type here" />
+          
+          {/* Pass arguments with arrow function */}
+          <button onClick={() => handleDelete(123)}>Delete</button>
+          
+          <form onSubmit={handleSubmit}>
+            <button type="submit">Submit</button>
+          </form>
+        </div>
+      );
+    }
+
+#### Controlled Components - Form Binding
+
+    import { useState } from 'react';
+    
+    function Form() {
+      const [text, setText] = useState('');
+    
+      return (
+        <div>
+          {/* value + onChange = controlled component */}
+          <input 
+            value={text}  {/* React state controls value */}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Type something"
+          />
+          <p>You typed: {text}</p>
+          <p>Length: {text.length}</p>
+        </div>
+      );
+    }
+    
+    // Input value always matches state
+    // State is single source of truth
+
+#### Conditional Rendering
+
+    function Profile({ isLoggedIn, user }) {
+      return (
+        <div>
+          {/* Ternary operator */}
+          {isLoggedIn ? (
+            <h1>Welcome back, {user.name}!</h1>
+          ) : (
+            <h1>Please log in</h1>
+          )}
+          
+          {/* && operator - show if condition is true */}
+          {isLoggedIn && <button>Logout</button>}
+          
+          {/* Multiple conditions */}
+          {isLoggedIn && user.isPremium && <span>⭐ Premium</span>}
+          
+          {/* Show nothing if false */}
+          {!isLoggedIn && <button>Login</button>}
+        </div>
+      );
+    }
+
+#### Complete Example: Todo List
+
+    import { useState } from 'react';
+    
+    function TodoList() {
+      const [todos, setTodos] = useState([]);
+      const [input, setInput] = useState('');
+    
+      const addTodo = () => {
+        if (input.trim()) {
+          setTodos([...todos, { id: Date.now(), text: input, done: false }]);
+          setInput('');
+        }
+      };
+    
+      const deleteTodo = (id) => {
+        setTodos(todos.filter(todo => todo.id !== id));
+      };
+    
+      const toggleTodo = (id) => {
+        setTodos(todos.map(todo => 
+          todo.id === id ? { ...todo, done: !todo.done } : todo
+        ));
+      };
+    
+      return (
+        <div>
+          <input value={input} onChange={(e) => setInput(e.target.value)} />
+          <button onClick={addTodo}>Add</button>
+          
+          <ul>
+            {todos.map(todo => (
+              <li key={todo.id} style={{ textDecoration: todo.done ? 'line-through' : 'none' }}>
+                <input type="checkbox" checked={todo.done} onChange={() => toggleTodo(todo.id)} />
+                {todo.text}
+                <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+
+#### Complete Example: Counter with History
+
+    import { useState } from 'react';
+    
+    function CounterWithHistory() {
+      const [count, setCount] = useState(0);
+      const [history, setHistory] = useState([0]);
+    
+      const updateCount = (newCount) => {
+        setCount(newCount);
+        setHistory([...history, newCount]);
+      };
+    
+      return (
+        <div>
+          <h1>Count: {count}</h1>
+          <button onClick={() => updateCount(count + 1)}>+1</button>
+          <button onClick={() => updateCount(count - 1)}>-1</button>
+          <button onClick={() => updateCount(0)}>Reset</button>
+          
+          <h3>History:</h3>
+          <ul>
+            {history.map((value, index) => (
+              <li key={index}>{value}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+
+#### Complete Example: Search/Filter List
+
+    import { useState } from 'react';
+    
+    function SearchableList() {
+      const [search, setSearch] = useState('');
+      const items = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry'];
+    
+      // Filter items based on search
+      const filtered = items.filter(item => 
+        item.toLowerCase().includes(search.toLowerCase())
+      );
+    
+      return (
+        <div>
+          <input
+            type="text"
+            placeholder="Search fruits..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          
+          <ul>
+            {filtered.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+          
+          <p>Found {filtered.length} items</p>
+        </div>
+      );
+    }
+
+#### React vs Traditional JavaScript
+
+Vanilla JS (Imperative):
+
+    let count = 0;
+    const div = document.getElementById('counter');
+    const btn = document.getElementById('btn');
+    
+    btn.addEventListener('click', () => {
+      count++;
+      div.textContent = count;
+      // Manually update DOM
+    });
+
+React (Declarative):
+
+    function Counter() {
+      const [count, setCount] = useState(0);
+    
+      return (
+        <>
+          <div>{count}</div>
+          <button onClick={() => setCount(count + 1)}>
+            +
+          </button>
+        </>
+      );
+      // React updates DOM automatically
+    }
+
+React: Describe what UI should look like, React handles updates
+
+#### Common React Patterns
+
+    // 1. Toggle boolean
+    const [isOpen, setIsOpen] = useState(false);
+    setIsOpen(!isOpen);  // or setIsOpen(prev => !prev);
+    
+    // 2. Add to array
+    const [items, setItems] = useState([]);
+    setItems([...items, newItem]);
+    
+    // 3. Remove from array
+    setItems(items.filter(item => item.id !== idToRemove));
+    
+    // 4. Update object in array
+    setItems(items.map(item => 
+      item.id === targetId ? { ...item, name: newName } : item
+    ));
+    
+    // 5. Update nested object
+    const [user, setUser] = useState({ name: '', address: { city: '' } });
+    setUser({ ...user, address: { ...user.address, city: 'Karachi' } });
+    
+    // 6. Async data fetching
+    useEffect(() => {
+      fetch('/api/data')
+        .then(res => res.json())
+        .then(data => setData(data));
+    }, []);
+
+#### Debugging React Applications
+
+Common mistakes and solutions:
+
+*   **State not updating?** Are you mutating state directly?
+*   **Infinite re-renders?** Check useEffect dependencies
+*   **Missing key prop warning?** Add unique key to list items
+*   **Component not re-rendering?** Make sure you're using setState
+
+Debugging tools:
+
+*   console.log() your state values
+*   React DevTools browser extension
+*   Check browser console for errors
+*   Use debugger; statement to pause execution
+
+#### Organizing Your React Project
+
+    src/
+    ├── components/          # Reusable components
+    │   ├── Button.jsx
+    │   ├── Card.jsx
+    │   └── Navbar.jsx
+    ├── pages/              # Page components
+    │   ├── Home.jsx
+    │   └── About.jsx
+    ├── hooks/              # Custom hooks (later)
+    ├── utils/              # Helper functions
+    ├── App.jsx             # Main app
+    └── main.jsx            # Entry point
+
+Start simple, refactor as project grows
+
+#### Frontend + Backend: How They Work Together
+
+The Full Flow of a Web Application:
+
+**1\. User Action** → User clicks button, submits form, types in search
+
+**2\. React Frontend** → Captures event, updates UI optimistically
+
+**3\. API Request** → React sends HTTP request (fetch/axios) to backend
+
+**4\. Express Backend** → Receives request, validates data, processes logic
+
+**5\. Database** → Express queries/updates database (MongoDB, PostgreSQL, etc.)
+
+**6\. Response** → Backend sends JSON response back to frontend
+
+**7\. React Updates UI** → setState with new data, UI re-renders automatically
+
+Next lecture: We'll connect your React frontend to your Express backend!
+
+Reveal.initialize({ controls: true, progress: true, center: true, slideNumber: 'c/t', hash: true, transition: 'slide', plugins: \[RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight\] });

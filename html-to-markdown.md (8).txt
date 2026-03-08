@@ -1,0 +1,948 @@
+ Web-Based Application Development — Lecture 8        .reveal pre { width: 100%; font-size: 0.45em; } .reveal code { max-height: 500px; } .note { font-size: 0.7em; color: #666; font-style: italic; } .architecture-diagram { display: flex; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px auto; } .middleware-diagram { display: flex; flex-wrap: wrap; background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px auto; } .box { display: inline-block; padding: 15px 25px; margin: 10px; border: 2px solid #333; border-radius: 5px; background: white; } .arrow { font-size: 2em; margin: 0 10px; }
+
+![](https://www.iba.edu.pk/favicon.ico) Institute of Business Administration Karachi
+
+CSE 308: Web Based Application Development - Spring 2026
+
+Web Based Application Development
+---------------------------------
+
+### Week 4 Lecture 8
+
+12th February 2026
+
+### Agenda
+
+*   Express Backend Setup (Node.js + npm)
+*   HTTP Headers & Middleware in Express
+*   Database Integration with PostgreSQL
+*   Building REST API (CRUD operations)
+*   Backend Best Practices
+
+### Full Stack Architecture
+
+React Frontend  
+Port 5173
+
+→
+
+Express Backend  
+Port 3000
+
+→
+
+PostgreSQL Database  
+Port 5432
+
+Frontend and backend run on separate ports during development
+
+### 1) Express Backend Setup
+
+Building a Node.js backend with Express framework
+
+#### Prerequisites: Node.js & npm
+
+1.  Download & install Node.js: `https://nodejs.org/`  
+    This includes npm (Node Package Manager)
+2.  Verify installation in terminal/command prompt:
+    
+        node --version
+        npm --version
+    
+3.  Expected output:
+    
+        v20.11.0
+        10.2.4
+    
+
+Use Node.js v18 or higher for best compatibility
+
+#### Project Structure Overview
+
+    my-fullstack-app/
+    ├── backend/               # Express server
+    │   ├── src/
+    │   │   ├── server.js      # Main entry point
+    │   │   ├── db.js          # Database connection
+    │   │   └── routes/        # API routes
+    │   ├── package.json
+    │   └── node_modules/
+    └── frontend/              # React app (Vite)
+        ├── src/
+        ├── package.json
+        └── node_modules/
+
+#### Step 1: Initialize Backend Project
+
+Create and navigate to backend directory:
+
+    mkdir my-fullstack-app
+    cd my-fullstack-app
+    mkdir backend
+    cd backend
+
+Initialize npm project:
+
+    npm init -y
+
+The `-y` flag accepts all default options
+
+#### Step 2: Install Express & Dependencies
+
+    # Core dependencies
+    npm install express cors cookie-parser pg
+    
+    # Development dependency for auto-restart
+    npm install --save-dev nodemon
+
+What each package does:
+
+*   **express** — Web framework for Node.js
+*   **cors** — Enable Cross-Origin Resource Sharing
+*   **cookie-parser** — Parse cookies from requests
+*   **pg** — PostgreSQL client for Node.js
+*   **nodemon** — Auto-restart server on file changes
+
+#### Step 3: Update package.json Scripts
+
+    {
+      "name": "backend",
+      "version": "1.0.0",
+      "type": "module",
+      "scripts": {
+        "start": "node src/server.js",
+        "dev": "nodemon src/server.js"
+      },
+      "dependencies": {
+        "express": "^4.18.2",
+        "cors": "^2.8.5",
+        "cookie-parser": "^1.4.6",
+        "pg": "^8.11.3"
+      },
+      "devDependencies": {
+        "nodemon": "^3.0.2"
+      }
+    }
+
+Adding `"type": "module"` enables ES6 import syntax
+
+#### Step 4: Create Basic Express Server
+
+File: `backend/src/server.js`
+
+    import express from 'express';
+    import cors from 'cors';
+    import cookieParser from 'cookie-parser';
+    
+    const app = express();
+    const PORT = 3000;
+    
+    // Middleware
+    app.use(cors()); // Enable CORS for React frontend
+    app.use(express.json()); // Parse JSON request bodies
+    app.use(cookieParser()); // Parse cookies
+    
+    // Test route
+    app.get('/', (req, res) => {
+      res.json({ message: 'Hello from Express!' });
+    });
+    
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+
+#### Step 5: Run Your First Server!
+
+Start the development server:
+
+    npm run dev
+
+Expected output:
+
+    [nodemon] starting `node src/server.js`
+    Server running on http://localhost:3000
+
+Test in browser: `http://localhost:3000`
+
+You should see:
+
+    {"message": "Hello from Express!"}
+
+#### Understanding Express Basics
+
+    // Request object (req) contains:
+    req.method      // HTTP method: 'GET', 'POST', 'PUT', 'DELETE'
+    req.url         // Full URL path
+    req.params      // URL parameters: /users/:id
+    req.query       // Query strings: /search?term=hello
+    req.body        // Request body (needs express.json())
+    req.cookies     // Parsed cookies (needs cookie-parser)
+    
+    // Response object (res) methods:
+    res.json(data)           // Send JSON response
+    res.status(code)         // Set HTTP status code
+    res.send(text)           // Send text response
+    res.sendFile(path)       // Send file
+    res.redirect(url)        // Redirect to URL
+    res.cookie(name, value)  // Set cookie
+
+#### Example: Query Parameters & Route Parameters
+
+    // Query parameters: /search?term=nodejs&limit=10
+    app.get('/search', (req, res) => {
+      const { term, limit } = req.query;
+      res.json({ 
+        searchTerm: term, 
+        limit: limit || 10 
+      });
+    });
+    
+    // Route parameters: /users/123
+    app.get('/users/:id', (req, res) => {
+      const userId = req.params.id;
+      res.json({ 
+        message: `Fetching user ${userId}` 
+      });
+    });
+
+### 2) HTTP Headers & Middleware
+
+Understanding how to control HTTP responses and use middleware
+
+#### What is Middleware?
+
+Functions that execute during the request-response cycle
+
+Request
+
+→
+
+Middleware 1
+
+→
+
+Middleware 2
+
+→
+
+Route Handler
+
+→
+
+Response
+
+Each middleware can modify req/res or pass to next()
+
+#### Built-in Middleware
+
+    import express from 'express';
+    import cookieParser from 'cookie-parser';
+    
+    const app = express();
+    
+    // Parse JSON bodies
+    app.use(express.json());
+    
+    // Parse URL-encoded form data
+    app.use(express.urlencoded({ extended: true }));
+    
+    // Parse cookies
+    app.use(cookieParser());
+    
+    // Serve static files from 'public' directory
+    app.use(express.static('public'));
+
+#### Cookie Parser Middleware
+
+    import cookieParser from 'cookie-parser';
+    
+    // Basic usage
+    app.use(cookieParser());
+    
+    // With secret for signed cookies
+    app.use(cookieParser('my-secret-key'));
+    
+    // Setting cookies in routes
+    app.get('/set-cookie', (req, res) => {
+      res.cookie('username', 'john_doe', {
+        maxAge: 900000,  // 15 minutes
+        httpOnly: true,  // Not accessible via JavaScript
+        secure: true     // Only sent over HTTPS
+      });
+      res.json({ message: 'Cookie set' });
+    });
+    
+    // Reading cookies
+    app.get('/get-cookie', (req, res) => {
+      const username = req.cookies.username;
+      res.json({ username });
+    });
+
+#### CORS Middleware (Essential for React)
+
+    import cors from 'cors';
+    
+    // Option 1: Allow all origins (development)
+    app.use(cors());
+    
+    // Option 2: Configure specific options
+    app.use(cors({
+      origin: 'http://localhost:5173', // React dev server
+      methods: ['GET', 'POST', 'PUT', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true  // Allow cookies
+    }));
+
+Without CORS, React cannot make requests to Express from a different port
+
+#### Custom Middleware: Request Logger
+
+    // Custom logging middleware
+    const requestLogger = (req, res, next) => {
+      const timestamp = new Date().toISOString();
+      console.log(`[${timestamp}] ${req.method} ${req.url}`);
+      next(); // Pass control to next middleware
+    };
+    
+    app.use(requestLogger);
+    
+    // Now every request will be logged:
+    // [2025-09-23T10:30:45.123Z] GET /api/students
+    // [2025-09-23T10:30:47.456Z] POST /api/students
+
+#### Setting Response Headers
+
+    // JSON response (Content-Type is set automatically)
+    app.get('/api/data', (req, res) => {
+      res.json({ message: 'Hello API' });
+    });
+    
+    // Custom headers
+    app.get('/api/custom', (req, res) => {
+      res.set('X-Custom-Header', 'MyValue');
+      res.set('Cache-Control', 'no-cache');
+      res.json({ data: 'with custom headers' });
+    });
+    
+    // Multiple headers at once
+    app.get('/api/info', (req, res) => {
+      res.set({
+        'X-Powered-By': 'Express',
+        'X-API-Version': '1.0'
+      });
+      res.json({ status: 'ok' });
+    });
+
+#### Redirect Example
+
+    // Permanent redirect (301)
+    app.get('/old-page', (req, res) => {
+      res.redirect(301, '/new-page');
+    });
+    
+    // Temporary redirect (302) - default
+    app.get('/temporary', (req, res) => {
+      res.redirect('/target-page');
+    });
+
+#### File Download Example
+
+    import path from 'path';
+    import { fileURLToPath } from 'url';
+    
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+    
+    app.get('/download/report', (req, res) => {
+      const filePath = path.join(__dirname, '../data/report.pdf');
+      
+      // Force download with custom filename
+      res.download(filePath, 'MyReport.pdf', (err) => {
+        if (err) {
+          res.status(404).json({ error: 'File not found' });
+        }
+      });
+    });
+
+#### Error Handling Middleware
+
+    // Regular routes come first
+    app.get('/api/data', (req, res) => {
+      // ... route logic
+    });
+    
+    // 404 handler (should be after all routes)
+    app.use((req, res) => {
+      res.status(404).json({ 
+        error: 'Not Found',
+        path: req.url 
+      });
+    });
+    
+    // Error handler (must have 4 parameters)
+    app.use((err, req, res, next) => {
+      console.error(err.stack);
+      res.status(500).json({ 
+        error: 'Internal Server Error',
+        message: err.message 
+      });
+    });
+
+### 3) Database Integration
+
+Using PostgreSQL with Node.js
+
+#### Why PostgreSQL?
+
+*   Industry-standard relational database
+*   ACID compliance for data integrity
+
+*   ACID stands for Atomicity, Consistency, Isolation, Durability
+
+*   Excellent for production applications
+*   Supports complex queries and relationships
+*   Free and open-source
+
+#### Setting Up PostgreSQL
+
+1.  Download and install PostgreSQL:  
+    `https://www.postgresql.org/download/`
+2.  During installation, set a password for the `postgres` user
+3.  Verify installation:
+    
+        psql --version
+    
+4.  Create a database:
+    
+        createdb student_db
+    
+
+#### Database Connection
+
+File: `backend/src/db.js`
+
+    import pg from 'pg';
+    const { Pool } = pg;
+    
+    const pool = new Pool({
+      user: 'postgres',
+      host: 'localhost',
+      database: 'student_db',
+      password: 'your_password',
+      port: 5432,
+    });
+    
+    // Test connection
+    pool.query('SELECT NOW()', (err, res) => {
+      if (err) {
+        console.error('Database connection error:', err);
+      } else {
+        console.log('Database connected:', res.rows[0]);
+      }
+    });
+    
+    export default pool;
+
+#### Creating Tables
+
+File: `backend/scripts/init-db.js`
+
+    import pool from '../src/db.js';
+    
+    const createTable = async () => {
+      const query = `
+        CREATE TABLE IF NOT EXISTS students (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(100) NOT NULL,
+          email VARCHAR(100) UNIQUE,
+          enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `;
+      
+      try {
+        await pool.query(query);
+        console.log('Table created successfully');
+        
+        // Insert sample data
+        const insertQuery = `
+          INSERT INTO students (name, email) 
+          VALUES 
+            ('Alice Johnson', 'alice@example.com'),
+            ('Bob Smith', 'bob@example.com'),
+            ('Charlie Brown', 'charlie@example.com')
+          ON CONFLICT (email) DO NOTHING
+        `;
+        await pool.query(insertQuery);
+        console.log('Sample data inserted');
+        
+        process.exit(0);
+      } catch (err) {
+        console.error('Error:', err);
+        process.exit(1);
+      }
+    };
+    
+    createTable();
+
+#### Running Database Scripts
+
+Add script to `package.json`:
+
+    {
+      "scripts": {
+        "start": "node src/server.js",
+        "dev": "nodemon src/server.js",
+        "init-db": "node scripts/init-db.js"
+      }
+    }
+
+Run the initialization:
+
+    npm run init-db
+
+#### Understanding pg API
+
+    import pool from './db.js';
+    
+    // Simple query
+    const result = await pool.query('SELECT * FROM students');
+    console.log(result.rows); // Array of student objects
+    
+    // Parameterized query (prevents SQL injection)
+    const result = await pool.query(
+      'SELECT * FROM students WHERE id = $1',
+      [studentId]
+    );
+    
+    // Insert with RETURNING
+    const result = await pool.query(
+      'INSERT INTO students (name, email) VALUES ($1, $2) RETURNING *',
+      ['David Lee', 'david@example.com']
+    );
+    console.log(result.rows[0]); // Newly inserted student
+    
+    // Update
+    const result = await pool.query(
+      'UPDATE students SET name = $1 WHERE id = $2',
+      ['Updated Name', 1]
+    );
+    console.log(result.rowCount); // Number of rows affected
+
+#### SQL Injection Protection
+
+NEVER do this (SQL Injection vulnerable):
+
+    // DANGEROUS!
+    const email = req.query.email;
+    const query = `SELECT * FROM students WHERE email = '${email}'`;
+    const result = await pool.query(query);
+
+Always use parameterized queries:
+
+    // SAFE!
+    const email = req.query.email;
+    const result = await pool.query(
+      'SELECT * FROM students WHERE email = $1',
+      [email]
+    );
+
+The `$1` placeholder prevents SQL injection attacks
+
+#### Environment Variables for Database Config
+
+File: `backend/.env`
+
+    DB_USER=postgres
+    DB_HOST=localhost
+    DB_NAME=student_db
+    DB_PASSWORD=your_password
+    DB_PORT=5432
+    PORT=3000
+
+Install dotenv:
+
+    npm install dotenv
+
+Update `db.js`:
+
+    import 'dotenv/config';
+    import pg from 'pg';
+    const { Pool } = pg;
+    
+    const pool = new Pool({
+      user: process.env.DB_USER,
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
+      port: process.env.DB_PORT,
+    });
+    
+    export default pool;
+
+### 4) Building a REST API
+
+CRUD operations for Student resource
+
+#### REST API Examples
+
+HTTP Method
+
+Endpoint
+
+Action
+
+Response
+
+`GET`
+
+/api/students
+
+List all students
+
+200 + array
+
+`GET`
+
+/api/students/:id
+
+Get one student
+
+200 + object
+
+`POST`
+
+/api/students
+
+Create new student
+
+201 + object
+
+`PUT`
+
+/api/students/:id
+
+Update student
+
+200 + object
+
+`DELETE`
+
+/api/students/:id
+
+Delete student
+
+204 (no content)
+
+#### HTTP Status Codes Applied to HTTP Methods
+
+Code
+
+Meaning
+
+When to Use
+
+200
+
+OK
+
+Successful GET, PUT
+
+201
+
+Created
+
+Successful POST (new resource)
+
+204
+
+No Content
+
+Successful DELETE
+
+400
+
+Bad Request
+
+Invalid input data
+
+404
+
+Not Found
+
+Resource doesn't exist
+
+500
+
+Server Error
+
+Database or server error
+
+#### Creating Routes File
+
+File: `backend/src/routes/students.js`
+
+    import express from 'express';
+    import pool from '../db.js';
+    
+    const router = express.Router();
+    
+    // Routes will be added here
+    
+    export default router;
+
+#### GET /api/students — List All
+
+    // GET /api/students - List all students
+    router.get('/', async (req, res) => {
+      try {
+        const result = await pool.query(
+          'SELECT id, name, email, enrolled_at FROM students ORDER BY id DESC'
+        );
+        
+        res.json({ 
+          success: true,
+          data: result.rows 
+        });
+      } catch (error) {
+        res.status(500).json({ 
+          success: false,
+          error: error.message 
+        });
+      }
+    });
+
+Response example: `{"success": true, "data": [...]}`
+
+#### GET /api/students/:id — Get Single Student
+
+    // GET /api/students/:id - Get single student
+    router.get('/:id', async (req, res) => {
+      try {
+        const { id } = req.params;
+        
+        const result = await pool.query(
+          'SELECT id, name, email, enrolled_at FROM students WHERE id = $1',
+          [id]
+        );
+        
+        if (result.rows.length === 0) {
+          return res.status(404).json({ 
+            success: false,
+            error: 'Student not found' 
+          });
+        }
+        
+        res.json({ 
+          success: true,
+          data: result.rows[0] 
+        });
+      } catch (error) {
+        res.status(500).json({ 
+          success: false,
+          error: error.message 
+        });
+      }
+    });
+
+#### POST /api/students — Create New
+
+    // POST /api/students - Create new student
+    router.post('/', async (req, res) => {
+      try {
+        const { name, email } = req.body;
+        
+        // Validate input
+        if (!name || name.trim().length === 0) {
+          return res.status(400).json({ 
+            success: false,
+            error: 'Name is required' 
+          });
+        }
+        
+        // Insert into database
+        const result = await pool.query(
+          'INSERT INTO students (name, email) VALUES ($1, $2) RETURNING *',
+          [name.trim(), email?.trim() || null]
+        );
+        
+        res.status(201).json({ 
+          success: true,
+          data: result.rows[0]
+        });
+      } catch (error) {
+        // Handle unique constraint violation
+        if (error.code === '23505') {
+          return res.status(400).json({ 
+            success: false,
+            error: 'Email already exists' 
+          });
+        }
+        res.status(500).json({ 
+          success: false,
+          error: error.message 
+        });
+      }
+    });
+
+#### PUT /api/students/:id — Update Student
+
+    // PUT /api/students/:id - Update student
+    router.put('/:id', async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { name, email } = req.body;
+        
+        if (!name || name.trim().length === 0) {
+          return res.status(400).json({ 
+            success: false,
+            error: 'Name is required' 
+          });
+        }
+        
+        const result = await pool.query(
+          'UPDATE students SET name = $1, email = $2 WHERE id = $3 RETURNING *',
+          [name.trim(), email?.trim() || null, id]
+        );
+        
+        if (result.rows.length === 0) {
+          return res.status(404).json({ 
+            success: false,
+            error: 'Student not found' 
+          });
+        }
+        
+        res.json({ 
+          success: true,
+          data: result.rows[0]
+        });
+      } catch (error) {
+        if (error.code === '23505') {
+          return res.status(400).json({ 
+            success: false,
+            error: 'Email already exists' 
+          });
+        }
+        res.status(500).json({ 
+          success: false,
+          error: error.message 
+        });
+      }
+    });
+
+#### DELETE /api/students/:id — Delete Student
+
+    // DELETE /api/students/:id - Delete student
+    router.delete('/:id', async (req, res) => {
+      try {
+        const { id } = req.params;
+        
+        const result = await pool.query(
+          'DELETE FROM students WHERE id = $1 RETURNING id',
+          [id]
+        );
+        
+        if (result.rows.length === 0) {
+          return res.status(404).json({ 
+            success: false,
+            error: 'Student not found' 
+          });
+        }
+        
+        // 204 No Content is standard for successful DELETE
+        res.status(204).send();
+      } catch (error) {
+        res.status(500).json({ 
+          success: false,
+          error: error.message 
+        });
+      }
+    });
+
+#### Connecting Routes to Server
+
+Update `backend/src/server.js`:
+
+    import express from 'express';
+    import cors from 'cors';
+    import cookieParser from 'cookie-parser';
+    import studentRoutes from './routes/students.js';
+    
+    const app = express();
+    const PORT = 3000;
+    
+    // Middleware
+    app.use(cors());
+    app.use(express.json());
+    app.use(cookieParser());
+    
+    // Routes
+    app.get('/', (req, res) => {
+      res.json({ message: 'Welcome to Student API' });
+    });
+    
+    app.use('/api/students', studentRoutes);
+    
+    // 404 handler
+    app.use((req, res) => {
+      res.status(404).json({ error: 'Endpoint not found' });
+    });
+    
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+
+#### Testing the API with curl
+
+    # List all students
+    curl http://localhost:3000/api/students
+    
+    # Get student by ID
+    curl http://localhost:3000/api/students/1
+    
+    # Create new student
+    curl -X POST http://localhost:3000/api/students \
+      -H "Content-Type: application/json" \
+      -d '{"name":"Eve Wilson","email":"eve@example.com"}'
+    
+    # Update student
+    curl -X PUT http://localhost:3000/api/students/1 \
+      -H "Content-Type: application/json" \
+      -d '{"name":"Alice Smith","email":"alice.smith@example.com"}'
+    
+    # Delete student
+    curl -X DELETE http://localhost:3000/api/students/1
+
+#### Testing with Postman
+
+![Postman](https://user-images.githubusercontent.com/14960168/56479928-75069000-64ea-11e9-9326-e8967a78b89f.png)
+
+### Best Practices
+
+#### Backend Best Practices
+
+*   Always use parameterized queries (prevent SQL injection)
+*   Validate input data before processing
+*   Return consistent response format
+*   Use proper HTTP status codes
+*   Handle errors gracefully
+*   Use environment variables for configuration
+*   Add `.env` to `.gitignore`
+
+#### Project Structure (Backend Only)
+
+    my-fullstack-app/
+    backend/
+    ├── src/
+    │   ├── server.js
+    │   ├── db.js
+    │   └── routes/
+    │       └── students.js
+    ├── scripts/
+    │   └── init-db.js
+    ├── .env
+    ├── .gitignore
+    ├── package.json
+    └── node_modules/
+    
+
+Reveal.initialize({ width: 1200, height: 700, slideNumber: 'c/t', controls: true, progress: true, center: true, hash: true, plugins: \[RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight\] });

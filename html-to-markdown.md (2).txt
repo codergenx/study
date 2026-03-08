@@ -1,0 +1,775 @@
+ Web-Based Application Development          
+
+![](https://www.iba.edu.pk/favicon.ico) Institute of Business Administration Karachi
+
+[Open Code Editor](https://jsfiddle.net)
+
+CSE 308: Web Based Application Development - Spring 2026
+
+Web Based Application Development
+---------------------------------
+
+### Week 2 Lecture 3
+
+27th January 2026
+
+### What we did in the last class
+
+*   Why use version control?
+*   Designing your application
+*   Wireframes using Figma
+
+### Content of today's lecture are based on:
+
+*   [https://web.dev/learn/html](https://web.dev/learn/html)
+*   HTML & CSS: design and build websites by Jon Duckett
+
+### Agenda
+
+*   Wireframes using Figma (if needed)
+*   HTML
+
+### Let's start with HTML!
+
+HTML = Hyper Text Markup Language
+
+But before that, do you know what's common between these pictures?
+
+![](https://i.dawn.com/primary/2019/08/5d4afd6f61230.jpg) ![](https://newdocer.cache.wpscdn.com/photo/20191024/9b78c51a5e7442e0b7426a5e6e9b0514.jpg) ![](https://img.freepik.com/free-psd/supermarket-template-design_23-2151804182.jpg)
+
+The answer is **Structure**
+
+HTML is used to provide structure to documents of the web or **webpages**
+
+### Let's look at a basic HTML document structure
+
+![](images/html-structure.png)
+
+### Try it now
+
+If you are using Chrome, open any webpage, right click and press "View Page Source".
+
+You'll see similar code that we saw earlier.
+
+Did you notice the text with the angle brackets?
+
+These are called **tags**
+
+Tags act like containers which let you know about the information enclosed within it.
+
+Tags come in pairs (but not always) and are called **element**
+
+### A closer look at tags
+
+![](images/html-tag-opening.png) ![](images/html-tag-closing.png)
+
+Additionally, tags can have additional information called **attributes**
+
+![](images/tag-attribute.png)
+
+They appear in the opening tag of an element
+
+Attributes have a **name** and can be assigned a **value**
+
+Inside the html element, there are two elements
+
+*   **<body>**, which shows whatever is placed inside it in the browser
+*   **<head>**, which holds the information about the page
+
+**<title>** tag is present in the head element which shows the title you see on the browser tab for that page.
+
+### Fun fact 😮
+
+In the past, browsers didn't have tabs. There would be a separate window for every opened website.
+
+### Let's learn how to handle text in HTML!
+
+The idea behind handling text in HTML is NOT to stylize — it is to give semantic meaning to text.
+
+HTML provides six levels of headings: `<h1>` through `<h6>`.
+
+Heading 1
+=========
+
+    <h1>Heading 1</h1>
+
+### Heading 3
+
+    <h3>Heading 3</h3>
+
+###### Heading 6
+
+    <h6>Heading 6</h6>
+
+Paragraphs
+----------
+
+This is the first paragraph.
+
+    <p>This is the first paragraph.</p>
+
+This is another paragraph.
+
+    <p>This is another paragraph.</p>
+
+Bold & Italic
+-------------
+
+**Bold text**
+
+    <b>Bold text</b>
+
+_Italic text_
+
+    <i>Italic text</i>
+
+**Strong emphasis**
+
+    <strong>Strong emphasis</strong>
+
+_Emphasized text_
+
+    <em>Emphasized text</em>
+
+Superscripts & Subscripts
+-------------------------
+
+x2 + y2
+
+    x<sup>2</sup> + y<sup>2</sup>
+
+H2O
+
+    H<sub>2</sub>O
+
+Whitespace, Line Breaks & Rules
+-------------------------------
+
+Line one  
+Line two
+
+    Line one<br>Line two
+
+* * *
+
+    <hr>
+
+Semantic Markups
+----------------
+
+Highlighted text
+
+    <mark>Highlighted text</mark>
+
+HTML
+
+    <abbr title="HyperText Markup Language">HTML</abbr>
+
+HTML5 Guide
+
+    <cite>HTML5 Guide</cite>
+
+Quotations
+----------
+
+Knowledge is power.
+
+    <q>Knowledge is power.</q>
+
+> “The web is more a social creation than a technical one.” - Tim Berners-Lee
+
+    <blockquote>The web is more a social creation...</blockquote>
+
+Insertions & Deletions
+----------------------
+
+My favorite color is blue green.
+
+    My favorite color is <del>blue</del> <ins>green</ins>.
+
+HTML Entities
+-------------
+
+There are some reserved characters in HTML. You can use them like this:
+
+    &lt; → <
+
+    &gt; → >
+
+    &amp; → &
+
+    &copy; → ©
+
+    &nbsp; →  
+
+Media in HTML
+-------------
+
+HTML allows you to include multimedia elements like images, videos, and audio in web pages.
+
+These elements enhance user experience and make content more engaging.
+
+Images
+------
+
+Basic image:
+
+![Placeholder Image](https://placehold.co/200)
+
+Image with width and height:
+
+![Placeholder Image](https://placehold.co/200)
+
+    <img src="https://placehold.co/200" alt="Placeholder Image">
+
+    <img src="https://placehold.co/200" alt="Placeholder Image" width="200" height="100">
+
+Videos
+------
+
+Basic video with controls:
+
+ Your browser does not support the video tag.
+
+Autoplay video with autoplay:
+
+    <video width="320" height="240" controls>
+      <source src="mov_bbb.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+
+    <video width="320" height="240" autoplay muted loop>
+      <source src="mov_bbb.mp4" type="video/mp4">
+    </video>
+
+Audio
+-----
+
+Basic audio with controls:
+
+ Your browser does not support the audio element.
+
+    <audio controls>
+      <source src="horse.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+
+Autoplay audio (muted if needed):
+
+    <audio autoplay muted loop>
+      <source src="horse.mp3" type="audio/mpeg">
+    </audio>
+
+Links in HTML
+-------------
+
+Links are created with the `<a>` tag (anchor tag).
+
+They allow users to navigate between pages, sections, or even trigger actions like opening email.
+
+Basic Link
+----------
+
+[Visit Example](https://www.example.com)
+
+    <a href="https://www.example.com">Visit Example</a>
+
+Open in New Tab
+---------------
+
+[Open Example in new tab](https://www.example.com)
+
+    <a href="https://www.example.com" target="_blank">Open Example in new tab</a>
+
+Email Links
+-----------
+
+[Send Email](mailto:someone@example.com)
+
+    <a href="mailto:someone@example.com">Send Email</a>
+
+Page Anchors
+------------
+
+[Jump to Section 2](#section2)
+
+    <a href="#section2">Jump to Section 2</a>
+
+**This is Section 2**
+
+    <p id="section2">This is Section 2</p>
+
+Image as a Link
+---------------
+
+[![Example](https://placehold.co/200)](https://www.example.com)
+
+    <a href="https://www.example.com">
+      <img src="https://placehold.co/200" alt="Example">
+    </a>
+
+Relative vs Absolute Links
+--------------------------
+
+**Relative Link:** Works within the same site.
+
+[About Us](about.html)
+
+    <a href="about.html">About Us</a>
+
+**Absolute Link:** Full URL including domain.
+
+[About Us](https://www.example.com/about.html)
+
+    <a href="https://www.example.com/about.html">About Us</a>
+
+Lists in HTML
+-------------
+
+Lists are used to group related items together in a structured way.
+
+HTML provides several types of lists: unordered, ordered, nested, and description lists.
+
+Unordered List
+--------------
+
+*   HTML
+*   CSS
+*   JavaScript
+
+    <ul>
+      <li>HTML</li>
+      <li>CSS</li>
+      <li>JavaScript</li>
+    </ul>
+
+Ordered List
+------------
+
+1.  Install software
+2.  Write code
+3.  Test project
+
+    <ol>
+      <li>Install software</li>
+      <li>Write code</li>
+      <li>Test project</li>
+    </ol>
+
+Nested List
+-----------
+
+    <ul>
+      <li>Frontend
+        <ul>
+          <li>HTML</li>
+          <li>CSS</li>
+          <li>JS</li>
+        </ul>
+      </li>
+      <li>Backend
+        <ul>
+          <li>PHP</li>
+          <li>Node.js</li>
+        </ul>
+      </li>
+    </ul>
+
+*   Frontend
+    *   HTML
+    *   CSS
+    *   JS
+*   Backend
+    *   PHP
+    *   Node.js
+
+Description List
+----------------
+
+HTML
+
+HyperText Markup Language, used for creating web pages.
+
+CSS
+
+Cascading Style Sheets, used for styling web pages.
+
+JavaScript
+
+Programming language for adding interactivity.
+
+    <dl>
+      <dt>HTML</dt>
+      <dd>HyperText Markup Language, used for creating web pages.</dd>
+      <dt>CSS</dt>
+      <dd>Cascading Style Sheets, used for styling web pages.</dd>
+      <dt>JavaScript</dt>
+      <dd>Programming language for adding interactivity.</dd>
+    </dl>
+
+Tables in HTML
+--------------
+
+Tables are used to display tabular data in rows and columns.
+
+HTML tables are built with `<table>`, `<tr>`, `<td>`, and `<th>` elements.
+
+Basic Table
+-----------
+
+Row 1, Cell 1
+
+Row 1, Cell 2
+
+Row 2, Cell 1
+
+Row 2, Cell 2
+
+    <table border="1">
+      <tr>
+        <td>Row 1, Cell 1</td>
+        <td>Row 1, Cell 2</td>
+      </tr>
+      <tr>
+        <td>Row 2, Cell 1</td>
+        <td>Row 2, Cell 2</td>
+      </tr>
+    </table>
+
+Table with Headers
+------------------
+
+Name
+
+Age
+
+City
+
+Alice
+
+25
+
+New York
+
+Bob
+
+30
+
+London
+
+    <table border="1">
+      <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>City</th>
+      </tr>
+      <tr>
+        <td>Alice</td>
+        <td>25</td>
+        <td>New York</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>30</td>
+        <td>London</td>
+      </tr>
+    </table>
+
+Rowspan & Colspan
+-----------------
+
+Name
+
+Marks
+
+Alice
+
+Math: 90
+
+Science: 85
+
+Bob
+
+Math: 80, Science: 75
+
+    <table border="1">
+      <tr>
+        <th>Name</th>
+        <th colspan="2">Marks</th>
+      </tr>
+      <tr>
+        <td>Alice</td>
+        <td>Math: 90</td>
+        <td>Science: 85</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td colspan="2">Math: 80, Science: 75</td>
+      </tr>
+    </table>
+
+Styled Table
+------------
+
+Name
+
+Age
+
+City
+
+Alice
+
+25
+
+New York
+
+Bob
+
+30
+
+London
+
+    <table border="1" style="border-collapse: collapse; width:50%;">
+      <tr style="background-color:#f2f2f2;">
+        <th>Name</th>
+        <th>Age</th>
+        <th>City</th>
+      </tr>
+      <tr>
+        <td>Alice</td>
+        <td>25</td>
+        <td>New York</td>
+      </tr>
+      <tr>
+        <td>Bob</td>
+        <td>30</td>
+        <td>London</td>
+      </tr>
+    </table>
+
+Although we can style some elements using HTML attributes, it is preferred to using CSS for styling.
+
+HTML Forms
+----------
+
+Forms allow users to submit data to a server or interact with web pages.
+
+Forms use the `<form>` element and a variety of input controls.
+
+Basic Input Fields
+------------------
+
+Name:   
+  
+
+    <form>
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name">
+    </form>
+
+Password & Email Inputs
+-----------------------
+
+Email:   
+  
+Password: 
+
+    <form>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email">
+      <label for="pass">Password:</label>
+      <input type="password" id="pass" name="pass">
+    </form>
+
+Textarea
+--------
+
+Message:  
+
+    <form>
+      <label for="message">Message:</label><br>
+      <textarea id="message" name="message" rows="4" cols="40"></textarea>
+    </form>
+
+Checkboxes
+----------
+
+ I have a bike  
+ I have a car
+
+    <form>
+      <label><input type="checkbox" name="vehicle" value="Bike"> I have a bike</label><br>
+      <label><input type="checkbox" name="vehicle" value="Car"> I have a car</label>
+    </form>
+
+Radio Buttons
+-------------
+
+ Male  
+ Female
+
+    <form>
+      <label><input type="radio" name="gender" value="male"> Male</label><br>
+      <label><input type="radio" name="gender" value="female"> Female</label>
+    </form>
+
+Dropdown / Select
+-----------------
+
+Choose a car: Volvo Saab BMW
+
+    <form>
+      <label for="cars">Choose a car:</label>
+      <select id="cars" name="cars">
+        <option value="volvo">Volvo</option>
+        <option value="saab">Saab</option>
+        <option value="bmw">BMW</option>
+      </select>
+    </form>
+
+Buttons
+-------
+
+ 
+
+    <form>
+      <input type="submit" value="Submit">
+      <input type="reset" value="Reset">
+    </form>
+
+Numeric Inputs
+--------------
+
+Enter your age: 
+
+    <form>
+      <label for="age">Enter your age:</label>
+      <input type="number" id="age" name="age" min="1" max="120" step="1">
+    </form>
+
+File Upload
+-----------
+
+Upload your resume: 
+
+    <form>
+      <label for="resume">Upload your resume:</label>
+      <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx">
+    </form>
+
+Fieldset & Legend
+-----------------
+
+Personal Info First Name:   
+  
+Last Name: 
+
+    <form>
+      <fieldset>
+        <legend>Personal Info</legend>
+        <label for="fname">First Name:</label>
+        <input type="text" id="fname" name="fname"><br><br>
+        <label for="lname">Last Name:</label>
+        <input type="text" id="lname" name="lname">
+      </fieldset>
+    </form>
+
+Form Validation
+---------------
+
+Email (required):   
+  
+Password (min 6 characters):   
+  
+Age (between 18 and 99):   
+  
+
+    <form>
+      <label for="email">Email (required):</label>
+      <input type="email" id="email" name="email" required><br><br>
+    
+      <label for="password">Password (min 6 characters):</label>
+      <input type="password" id="password" name="password" minlength="6" required><br><br>
+    
+      <label for="age2">Age (between 18 and 99):</label>
+      <input type="number" id="age2" name="age2" min="18" max="99" required><br><br>
+    
+      <input type="submit" value="Submit">
+    </form>
+
+Complete Form Example
+---------------------
+
+Name:   
+  
+Email:   
+  
+Message:  
+  
+  
+ 
+
+    <form action="/submit" method="post">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name"><br><br>
+    
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email"><br><br>
+    
+      <label for="message">Message:</label><br>
+      <textarea id="message" name="message" rows="4" cols="40"></textarea><br><br>
+    
+      <input type="submit" value="Submit">
+      <input type="reset" value="Reset">
+    </form>
+
+From <div> to Semantic Containers
+---------------------------------
+
+In early HTML, developers used `<div>` everywhere as a general container.
+
+HTML5 introduced **semantic elements** that give meaning to the structure.
+
+### Using <div> Everywhere
+
+Header
+
+Navigation Links
+
+Main Content
+
+Footer
+
+    <div id="header">Header</div>
+    <div id="nav">Navigation Links</div>
+    <div id="content">Main Content</div>
+    <div id="footer">Footer</div>
+
+### Semantic HTML5 Structure
+
+Header
+
+Navigation Links
+
+Main Article Content
+
+Footer
+
+    <header>Header</header>
+    <nav>Navigation Links</nav>
+    <section>
+      <article>Main Article Content</article>
+    </section>
+    <footer>Footer</footer>
+
+### Why Semantic Containers?
+
+**Accessibility** - screen readers understand page structure.
+
+**SEO** - search engines recognize important content.
+
+**Readability** - code is easier to maintain and understand.
+
+We have not explored all the HTML elements. You can find more details regarding them online.
+
+// Also available as an ES module, see: // https://revealjs.com/initialization/ Reveal.initialize({ width: 1200, height: 700, slideNumber: 'c/t', controls: true, progress: true, center: true, hash: true, pdfMaxPagesPerSlide: 1, pdfSeparateFragments: false, // Learn about plugins: https://revealjs.com/plugins/ plugins: \[RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight\] });

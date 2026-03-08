@@ -1,0 +1,207 @@
+ Web-Based Application Development          
+
+![](https://www.iba.edu.pk/favicon.ico) Institute of Business Administration Karachi
+
+CSE 308: Web Based Application Development - Spring 2026
+
+Web Based Application Development
+---------------------------------
+
+### Week 1 Lecture 1
+
+20th Jan 2026
+
+Agenda
+======
+
+*   What is version control?
+*   Why use version control?
+
+### Course Project
+
+Why should we use version control?
+----------------------------------
+
+![](https://i.redd.it/7p6rgwk7dwd41.jpg)
+
+Why should we use version control?
+----------------------------------
+
+*   Work together without overwriting each other
+*   Track every change with full history
+*   Experiment safely with branches
+*   Review, automate, and ship with confidence
+
+### 1) Collaboration
+
+*   Parallel work via branches
+*   Merge changes instead of emailing files
+*   Resolve conflicts transparently
+
+### 2) History & Rollback
+
+*   Every commit = a snapshot with author & timestamp
+*   Revert bad changes quickly
+*   Blame/annotate to see who changed what, when, and why
+
+### 3) Branching & Experimentation
+
+*   Try ideas without breaking main
+*   Feature branches for focused work
+*   Safe prototypes and spikes
+
+### 4) Code Review & Quality
+
+*   Pull requests enable discussion
+*   Automated checks (lint/tests) on each commit
+
+### 5) Traceability & Compliance
+
+*   Link commits to issues and tasks
+*   Audit trails for regulated environments
+*   Release notes from commit history
+
+### 6) Backup & Disaster Recovery
+
+*   Cloned repos = distributed backups
+*   Recover lost work with history
+*   No more “final\_v7\_really\_final.zip”
+
+### 7) CI/CD & Automation
+
+*   Build, test, and deploy on every push
+*   Consistent, repeatable releases
+*   Faster feedback loops
+
+Git Basics
+----------
+
+1\. Initialize Git
+------------------
+
+*   Go to your project folder.
+*   Run `git init` to start version control.
+*   This creates a hidden `.git` folder.
+
+    
+    cd my-project
+    git init
+          
+
+2\. Stage and Commit
+--------------------
+
+*   Stage files: `git add`
+*   Commit with a message: `git commit -m`
+
+    
+    git add index.html
+    git commit -m "Initial commit"
+          
+
+3\. Add Remote
+--------------
+
+Link your local repo to GitHub (or any remote):
+
+    
+    git remote add origin https://github.com/user/repo.git
+          
+
+4\. Push
+--------
+
+Send your commits to the remote branch:
+
+    
+    git push -u origin main
+          
+
+5\. Branching
+-------------
+
+*   Create a branch: `git branch feature-x`
+*   Switch to branch: `git checkout feature-x`
+*   Or combine: `git checkout -b feature-x`
+
+    
+    git checkout -b feature-login
+          
+
+6\. Merge
+---------
+
+Merge another branch into current branch:
+
+    
+    git checkout main
+    git merge feature-login
+          
+
+7\. Example Merge Conflict
+--------------------------
+
+Conflict occurs when both branches modify the same line:
+
+    
+    <<<<<<< HEAD
+    console.log("Hello from main");
+    =======
+    console.log("Hello from feature");
+    >>>>>>> feature-login
+          
+
+8\. Resolve Merge Conflict
+--------------------------
+
+*   Edit file and keep correct version.
+*   Stage the fixed file.
+*   Commit the merge resolution.
+
+    
+    # After fixing code
+    git add file.js
+    git commit
+          
+
+9\. Stash & Apply
+-----------------
+
+Temporarily save your changes:
+
+*   `git stash` → save changes
+*   `git stash apply` → reapply changes
+
+    
+    git stash
+    git checkout main
+    git pull
+    git stash apply
+          
+
+### Using Git through command-line can be a bit cumbersome
+
+### As an alternative, you can use a source control client like Github Desktop or Sourcetree
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Github-desktop-logo-symbol.svg/2048px-Github-desktop-logo-symbol.svg.png)
+
+![](https://cdn.worldvectorlogo.com/logos/sourcetree-1.svg)
+
+### You can also use Source Control available in IDE like Visual Studio Code
+
+![](https://i.ytimg.com/vi/TUYt4oXLxQs/maxresdefault.jpg)
+
+### Hands-on Task
+
+1.  Run `git init` in a new folder
+2.  Add `hello.txt`, commit
+3.  Create branch `feature`, edit `hello.txt`, commit
+4.  Switch back to `main`, edit same line, commit
+5.  Merge `feature` into `main` → conflict!
+6.  Edit file to fix, then `git add` & `git commit`
+
+Feel free to use IDE (if available). Try running this command after you are done
+
+git log --graph --oneline --all
+
+// Also available as an ES module, see: // https://revealjs.com/initialization/ Reveal.initialize({ width: 1200, height: 700, slideNumber: 'c/t', controls: true, progress: true, center: true, hash: true, pdfMaxPagesPerSlide: 1, pdfSeparateFragments: false, // Learn about plugins: https://revealjs.com/plugins/ plugins: \[RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight\] });

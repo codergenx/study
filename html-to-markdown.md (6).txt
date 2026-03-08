@@ -1,0 +1,280 @@
+ Web-Based Application Development — CSS Basics         
+
+![](https://www.iba.edu.pk/favicon.ico) Institute of Business Administration Karachi
+
+[Open Code Editor](https://jsfiddle.net)
+
+CSE 308: Web Based Application Development - Spring 2026
+
+### Web Based Application Development
+
+### Week 3 Lecture 6
+
+5th February 2026
+
+### Agenda
+
+*   Document Object Model
+*   Using JS in Browser
+*   Common UI Components
+
+Document Object Model (DOM)
+---------------------------
+
+The DOM is a programming interface for HTML and XML documents.
+
+It represents the page so that programs can change the document structure, style, and content.
+
+Think of it as a tree-like structure where each node is an object representing a part of the document.
+
+![Diagram of the Document Object Model tree structure](https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/DOM-model.svg/800px-DOM-model.svg.png)
+
+Using JavaScript in the Browser
+-------------------------------
+
+JavaScript is a versatile language primarily used for creating interactive web pages.
+
+When a web page loads, the browser creates a Document Object Model of the page, which JavaScript can then interact with.
+
+![JavaScript Logo](https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png)
+
+### Manipulating the DOM
+
+You can select HTML elements using methods like:
+
+*   document.getElementById()
+*   document.querySelector()
+*   document.querySelectorAll()
+
+Once selected, you can modify their properties, such as changing text content, styles, or adding/removing classes.
+
+    
+    // Get an element by its ID
+    const myDiv = document.getElementById('my-div');
+    
+    // Change its text content
+    myDiv.textContent = 'New text content!';
+    
+    // Change its style
+    myDiv.style.color = 'blue';
+    
+    // Add a class
+    myDiv.classList.add('active');
+                  
+
+### Alerts, Prompts, and Confirms
+
+The \`alert()\` method displays a dialog box with a specified message and an OK button.
+
+The \`prompt()\` method displays a dialog box that prompts the user for input.
+
+The \`confirm()\` method displays a dialog box with a specified message, and OK and Cancel buttons.
+
+    
+    alert('Hello, world!');
+    
+
+    
+    const userName = prompt('Please enter your name:');
+    if (userName) {
+      alert(`Hello, ${userName}!`);
+    }
+    
+    
+
+    
+    const userConfirmed = confirm('Are you sure you want to proceed?');
+    if (userConfirmed) {
+      alert('You clicked OK!');
+    } else {
+      alert('You clicked Cancel!');
+    }
+                  
+
+### Debugging JavaScript
+
+The \`console.log()\` method is your best friend for debugging. It prints information to the browser's developer console.
+
+Breakpoints are another powerful debugging tool. You can set them in the "Sources" tab of the dev tools to pause code execution.
+
+The \`debugger\` statement can also be used to pause code execution in your script.
+
+    
+    function calculateSum(a, b) {
+      console.log(`The value of 'a' is: ${a}`);
+      debugger; // This will pause execution
+      const sum = a + b;
+      return sum;
+    }
+                  
+
+### Event Listeners
+
+An event listener "listens" for a specific event to occur on an element, such as a click, mouseover, or keypress.
+
+The `addEventListener()` method is used to attach an event handler to an element.
+
+Click Me
+
+    
+    const myButton = document.getElementById('my-button');
+    
+    myButton.addEventListener('click', () => {
+      alert('Button was clicked!');
+    });
+          
+
+    
+    <button id="my-button" class="...">Click Me</button>
+          
+
+### Types of Events Available
+
+Events in JavaScript are broadly categorized, such as:
+
+*   **Mouse Events**: `click`, `dblclick`, `mouseover`
+*   **Keyboard Events**: `keydown`, `keyup`
+*   **Form Events**: `submit`, `change`, `focus`
+*   **Window Events**: `load`, `resize`, `scroll`
+
+    
+    // Mouse event
+    document.addEventListener('click', () => {
+      console.log('Document clicked');
+    });
+    
+    // Keyboard event
+    document.addEventListener('keydown', (e) => {
+      console.log('Key pressed:', e.key);
+    });
+          
+
+### Dispatch Custom Event
+
+You can create and dispatch your own custom events using the `CustomEvent` constructor.
+
+This allows different parts of your application to communicate without being directly coupled.
+
+document.addEventListener('DOMContentLoaded', function () { // Listen for the custom event document.addEventListener('greet', (e) => { alert(e.detail.message); }); }) Dispatch Event
+
+    
+    // Create a custom event
+    const myEvent = new CustomEvent('greet', {
+      detail: { message: 'Hello from custom event!' }
+    });
+    
+    // Listen for the custom event
+    document.addEventListener('greet', (e) => {
+      alert(e.detail.message);
+    });
+    
+    // Dispatch the custom event
+    document.dispatchEvent(myEvent);
+          
+
+### Form Handling
+
+JavaScript is essential for handling form submissions, validating user input, and interacting with form data.
+
+The \`submit\` event on a form is a common event to listen for. You can prevent the default form submission behavior using \`event.preventDefault()\`.
+
+    
+    const myForm = document.getElementById('my-form');
+    
+    myForm.addEventListener('submit', (event) => {
+      // Prevent the default form submission
+      event.preventDefault();
+    
+      // Get the value of an input field
+      const emailInput = document.getElementById('email');
+      console.log(`Email submitted: ${emailInput.value}`);
+    });
+                  
+
+Common UI Components
+--------------------
+
+UI components are reusable solutions to common user interface design problems. They provide a predictable experience for users.
+
+Let's look at some of the most widely used components.
+
+![UI Components diagram](https://assets.justinmind.com/wp-content/uploads/2022/03/web-ui-components.png) Taken from Just In Mind
+
+### Navbar (Navigation Bar)
+
+A horizontal or vertical bar containing links to different sections of a website.
+
+Crucial for navigation and providing a consistent user experience across pages.
+
+Often includes a logo and links to key pages like "Home," "About," and "Contact."
+
+Home Products Services
+
+![Avatar](https://placehold.co/32)
+
+### Sidebar
+
+A vertical navigation column, usually on the left or right side of the main content.
+
+Ideal for applications with many sections or filters, providing a persistent and accessible navigation menu.
+
+Home Products Services
+
+Log out
+
+### Modals (Dialogs)
+
+A pop-up window that appears on top of the main page, requiring user interaction before they can return to the underlying content.
+
+Used for critical information, confirmations, or to collect user input without navigating away from the page.
+
+Hello, world
+
+Cancel
+
+### Breadcrumbs
+
+A navigation aid that shows a user's location within a hierarchical site structure.
+
+Typically displayed as a horizontal list of links, from the highest level (home) to the current page.
+
+Enhances user orientation, especially on large, complex websites.
+
+1.  [Home](#)
+\>2.  [Products](#)
+\>3.  Electronics
+
+### Dropdown
+
+A UI element that, when clicked, reveals a list of options or a menu.
+
+Saves screen space by hiding a long list of options until they are needed.
+
+Commonly used for navigation menus, select boxes, and sorting options.
+
+Home
+
+Menu
+
+*   Contact
+*   Features
+*   Our Team
+
+### Tooltip
+
+Tooltips provide extra information when a user hovers or focuses on an element.
+
+They can be created using the `title` attribute or with custom HTML/CSS for more control.
+
+Hover me This is a tooltip!
+
+    
+    <button class="relative group">
+    Hover me
+    <span class="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover:block bg-gray-700 text-white text-xs rounded py-1 px-2">
+    This is a tooltip!
+    </span>
+    </button>
+    
+
+Reveal.initialize({ width: 1200, height: 700, slideNumber: 'c/t', controls: true, progress: true, center: true, hash: true, pdfMaxPagesPerSlide: 1, pdfSeparateFragments: false, plugins: \[RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight\] });

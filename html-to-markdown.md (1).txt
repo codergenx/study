@@ -1,0 +1,114 @@
+ Web-Based Application Development          
+
+![](https://www.iba.edu.pk/favicon.ico) Institute of Business Administration Karachi
+
+CSE 308: Web Based Application Development - Spring 2026
+
+Web Based Application Development
+---------------------------------
+
+### Week 1 Lecture 2
+
+22nd Jan 2026
+
+Agenda
+======
+
+*   Designing your application
+*   Wireframes using Figma
+
+  
+
+### What do we need to start building our application?
+
+1\. Idea
+--------
+
+A clear problem your app will solve and why it matters.
+
+You already have one now!
+
+2\. Requirements
+----------------
+
+List of features the developer (you) needs to guide development.
+
+Hopefully, you had a chance to think about it after our last class.
+
+Try to prepare them early so that you can gauge the scope of the project and finish it in a timely manner.
+
+3\. Design
+----------
+
+Create wireframes or UI mockups to visualize the app flow.
+
+4\. Tech Stack
+--------------
+
+Choose your tools: programming language, framework, and database.
+
+5\. Development Setup
+---------------------
+
+Prepare your coding environment with essential tools.
+
+Let's talk about designing your app!
+------------------------------------
+
+And design, in general
+
+### What is design?
+
+*   The definition of design vary across different domains
+*   In this case,
+    
+    > **design** is the process of creating purposeful, functional, and visually appealing solutions to meet user needs.
+    
+*   Design is (and should be) tech-stack agnostic
+
+### Designing is primarily a designer's job because:
+
+  
+
+*   it requires expertise in UI/UX principles to ensure a good user experience.
+*   it requires proficiency in design tools like Figma, Adobe XD, etc.
+*   it requires creativity and visual problem-solving.
+
+### Can you spot the difference?
+
+![](https://i.redd.it/swlz39ix8yge1.jpeg)
+
+A practical first step in the design process is creating **wireframes**.
+
+> Wireframes are simple, low-fidelity sketches or blueprints of an application’s layout that focus on structure and functionality rather than colors or visuals.
+
+Eventually, wireframes evolve into full designs with colors, interactions, and detailed visuals, which developers then implement in code.
+
+### Wireframes Capture:
+
+Layout and structure - placement of headers, content, buttons, and menus.
+
+Navigation flow - how users move between screens or pages.
+
+Content hierarchy - which elements are most important and their order.
+
+Functional elements - forms, buttons, input fields, and interactive components.
+
+Basic interactions - clicks, links, and transitions (without detailed animations).
+
+Page or screen relationships - overall app or website architecture.
+
+Wireframes are relatively easy to build, especially with modern tools at our disposal.
+
+Let's try to build some wireframes in Figma
+
+Try to follow along.
+
+### Hands-on Activity
+
+Create wireframes for registration and login for your app.
+
+Find a design online and try to replicate.  
+Ignore fine details and focus on creating a **low-fidelity** design.
+
+// Also available as an ES module, see: // https://revealjs.com/initialization/ Reveal.initialize({ width: 1200, height: 700, slideNumber: 'c/t', controls: true, progress: true, center: true, hash: true, pdfMaxPagesPerSlide: 1, pdfSeparateFragments: false, // Learn about plugins: https://revealjs.com/plugins/ plugins: \[RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight\] });

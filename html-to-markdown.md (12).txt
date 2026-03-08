@@ -1,0 +1,582 @@
+ Web-Based Application Development — Lecture 12        .reveal pre { width: 100%; font-size: 0.45em; } .reveal code { max-height: 500px; } .note { font-size: 0.7em; color: #666; font-style: italic; } .architecture-diagram { background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px auto; }
+
+![](https://www.iba.edu.pk/favicon.ico) Institute of Business Administration Karachi
+
+CSE 308: Web Based Application Development - Spring 2026
+
+Web Based Application Development
+---------------------------------
+
+### Week 6 Lecture 12
+
+26th Feburary 2026
+
+Agenda
+------
+
+*   Custom Hooks - Building Reusable Logic
+*   Advanced Component Patterns
+*   Performance Optimization
+
+Custom Hooks
+------------
+
+Extract and reuse component logic
+
+### What are Custom Hooks?
+
+Functions that use React hooks to create reusable stateful logic
+
+*   Extract common logic from components
+*   Share logic between components
+*   Keep components clean and focused
+*   Must start with "use" prefix
+*   Can use other hooks inside
+
+### Problem: Repeated Code
+
+    // Component 1
+    function UserProfile() {
+      const [user, setUser] = useState(null);
+      
+      useEffect(() => {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) setUser(JSON.parse(savedUser));
+      }, []);
+      
+      useEffect(() => {
+        if (user) localStorage.setItem('user', JSON.stringify(user));
+      }, [user]);
+      
+      return {user?.name};
+    }
+    
+    // Component 2
+    function Settings() {
+      const [settings, setSettings] = useState({});
+      
+      useEffect(() => {
+        const saved = localStorage.getItem('settings');
+        if (saved) setSettings(JSON.parse(saved));
+      }, []);
+      
+      useEffect(() => {
+        localStorage.setItem('settings', JSON.stringify(settings));
+      }, [settings]);
+      
+      return Settings: {JSON.stringify(settings)};
+    }
+    
+    // Same localStorage logic repeated!
+
+### Solution: useLocalStorage Hook
+
+    import { useState, useEffect } from 'react';
+    
+    function useLocalStorage(key, initialValue) {
+      // Initialize from localStorage or use initial value
+      const [value, setValue] = useState(() => {
+        try {
+          const item = localStorage.getItem(key);
+          return item ? JSON.parse(item) : initialValue;
+        } catch (error) {
+          console.error(error);
+          return initialValue;
+        }
+      });
+    
+      // Save to localStorage whenever value changes
+      useEffect(() => {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (error) {
+          console.error(error);
+        }
+      }, [key, value]);
+    
+      return [value, setValue];
+    }
+    
+    export default useLocalStorage;
+
+### Using the Custom Hook
+
+    import useLocalStorage from './hooks/useLocalStorage';
+    
+    function UserProfile() {
+      const [user, setUser] = useLocalStorage('user', null);
+      
+      return (
+        
+          {user?.name}
+           setUser({ name: 'Alice' })}>
+            Set User
+          
+        
+      );
+    }
+    
+    function Settings() {
+      const [settings, setSettings] = useLocalStorage('settings', {
+        theme: 'light',
+        notifications: true
+      });
+      
+      return (
+        
+          Theme: {settings.theme}
+           setSettings({ ...settings, theme: 'dark' })}>
+            Toggle Theme
+          
+        
+      );
+    }
+    
+    // Clean, reusable, no duplication!
+
+### Custom Hook: useFetch
+
+    import { useState, useEffect } from 'react';
+    
+    function useFetch(url) {
+      const [data, setData] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+    
+      useEffect(() => {
+        const fetchData = async () => {
+          try {
+            setLoading(true);
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Failed to fetch');
+            const json = await response.json();
+            setData(json);
+            setError(null);
+          } catch (err) {
+            setError(err.message);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        fetchData();
+      }, [url]);
+    
+      return { data, loading, error };
+    }
+
+### Using useFetch
+
+    import useFetch from './hooks/useFetch';
+    
+    function StudentList() {
+      const { data, loading, error } = useFetch('/api/students');
+    
+      if (loading) return Loading...;
+      if (error) return Error: {error};
+    
+      return (
+        
+          {data?.data?.map(student => (
+            {student.name}
+          ))}
+        
+      );
+    }
+    
+    function PostList() {
+      const { data, loading, error } = useFetch('/api/posts');
+    
+      if (loading) return Loading...;
+      if (error) return Error: {error};
+    
+      return (
+        
+          {data?.map(post => (
+            {post.title}
+          ))}
+        
+      );
+    }
+    
+    // Same fetching logic, zero duplication!
+
+### Custom Hook: useDebounce
+
+    import { useState, useEffect } from 'react';
+    
+    function useDebounce(value, delay = 500) {
+      const [debouncedValue, setDebouncedValue] = useState(value);
+    
+      useEffect(() => {
+        const timer = setTimeout(() => {
+          setDebouncedValue(value);
+        }, delay);
+    
+        return () => clearTimeout(timer);
+      }, [value, delay]);
+    
+      return debouncedValue;
+    }
+    
+    // Usage - Search as user types
+    function SearchBar() {
+      const [searchTerm, setSearchTerm] = useState('');
+      const debouncedSearch = useDebounce(searchTerm, 500);
+    
+      useEffect(() => {
+        if (debouncedSearch) {
+          // API call only happens 500ms after user stops typing
+          fetch(`/api/search?q=${debouncedSearch}`)
+            .then(res => res.json())
+            .then(data => console.log(data));
+        }
+      }, [debouncedSearch]);
+    
+      return (
+         setSearchTerm(e.target.value)}
+          placeholder="Search..."
+        />
+      );
+    }
+
+### Custom Hook: useToggle
+
+    import { useState } from 'react';
+    
+    function useToggle(initialValue = false) {
+      const [value, setValue] = useState(initialValue);
+    
+      const toggle = () => setValue(prev => !prev);
+      const setTrue = () => setValue(true);
+      const setFalse = () => setValue(false);
+    
+      return [value, toggle, setTrue, setFalse];
+    }
+    
+    // Usage
+    function Modal() {
+      const [isOpen, toggle, open, close] = useToggle(false);
+    
+      return (
+        
+          Open Modal
+          
+          {isOpen && (
+            
+              Modal Content
+              Close
+            
+          )}
+        
+      );
+    }
+
+### Custom Hook Rules
+
+*   **Always start with "use"** - `useMyHook`, not `myHook`
+*   **Only call from React functions** - components or other hooks
+*   **Call at the top level** - not in loops, conditions, or nested functions
+*   **Can use other hooks** - useState, useEffect, useContext, etc.
+*   **Return useful values** - data, functions, or arrays
+
+Advanced Component Patterns
+---------------------------
+
+Reusable, composable component architectures
+
+### Children Props Pattern
+
+Pass JSX as content to components
+
+    // Wrapper component
+    function Card({ children }) {
+      return (
+        
+          {children}
+        
+      );
+    }
+    
+    // Usage
+    function App() {
+      return (
+        <Card>
+          Title
+          Content goes here
+          Click me
+        </Card>
+      );
+    }
+    
+    // Anything between  becomes children
+
+### Flexible Container Pattern
+
+    function Container({ children, maxWidth = '1200px', padding = '20px' }) {
+      return (
+        <div style={ { maxWidth, padding, margin: '0 auto' } }>
+          {children}
+        </div>
+      );
+    }
+    
+    // Multiple named children
+    function Layout({ header, sidebar, children, footer }) {
+      return (
+        <div>
+          <header>{header}</header>
+          <div style={ { display: 'flex' } }>
+            <aside>{sidebar}</aside>
+            <main>{children}</main>
+          </div>
+          <footer>{footer}</footer>
+        </div>
+      );
+    }
+
+### Render Props Pattern
+
+Pass a function as a prop that returns JSX
+
+    function DataFetcher({ url, render }) {
+      const [data, setData] = useState(null);
+      const [loading, setLoading] = useState(true);
+    
+      useEffect(() => {
+        fetch(url)
+          .then(res => res.json())
+          .then(data => {
+            setData(data);
+            setLoading(false);
+          });
+      }, [url]);
+    
+      return render({ data, loading });
+    }
+    
+    // Usage - complete control over rendering
+    function App() {
+      return (
+        <DataFetcher
+          url="/api/users"
+          render={({ data, loading }) => {
+            if (loading) return <p>Loading...</p>;
+            return (
+              <ul>
+                {data.map(user => (
+                  <li key={user.id}>{user.name}</li>
+                ))}
+              </ul>
+            );
+          }}
+        />
+      );
+    }
+
+### Compound Components Pattern
+
+Components that work together
+
+    // Tabs.jsx
+    function Tabs({ children }) {
+      const [activeTab, setActiveTab] = useState(0);
+      
+      return (
+        
+          {React.Children.map(children, (child, index) => 
+            React.cloneElement(child, { 
+              isActive: index === activeTab,
+              onClick: () => setActiveTab(index)
+            })
+          )}
+        
+      );
+    }
+    
+    function Tab({ label, isActive, onClick, children }) {
+      return (
+        <div>
+          <button 
+            onClick={onClick}
+            className={isActive ? "active" : ""}
+          >
+            {label}
+          </button>
+          {isActive && <div>{children}</div>}
+        </div>
+      );
+    }
+    // Usage
+    
+      Profile content
+      Settings content
+      Billing content
+    
+
+### Higher-Order Component (HOC)
+
+Function that takes a component and returns a new component
+
+    // HOC that adds loading state
+    function withLoading(Component) {
+      return function WithLoadingComponent({ isLoading, ...props }) {
+        if (isLoading) return <div>Loading...</div>;
+        return <Component {...props} />;
+      };
+    }
+    
+    // Original component
+    function UserList({ users }) {
+      return (
+        <ul>
+          {users.map(user => (
+            <li key={user.id}>{user.name}</li>
+          ))}
+        </ul>
+      );
+    }
+    
+    // Enhanced component
+    const UserListWithLoading = withLoading(UserList);
+    
+    // Usage
+    <UserListWithLoading isLoading={loading} users={users} />
+
+Note: Custom hooks are now preferred over HOCs
+
+Performance Optimization
+------------------------
+
+Making React apps faster
+
+### When to Optimize?
+
+**⚠️ Don't optimize prematurely!**
+
+Optimize when you have:
+
+*   Measured performance issues
+*   Slow renders (use React DevTools Profiler)
+*   Large lists (100+ items)
+*   Expensive calculations
+*   Frequent re-renders
+
+**Premature optimization is the root of all evil**
+
+### React.memo - Prevent Unnecessary Re-renders
+
+    
+    // Without memo - re-renders every time parent updates
+    function ExpensiveComponent({ data }) {
+      console.log('Rendering ExpensiveComponent');
+      return <div>{data}</div>;
+    }
+    
+    // With memo - only re-renders when props change
+    const ExpensiveComponent = React.memo(function ExpensiveComponent({ data }) {
+      console.log('Rendering ExpensiveComponent');
+      return <div>{data}</div>;
+    });
+    
+    function Parent() {
+      const [count, setCount] = useState(0);
+      const [data] = useState('Static data');
+    
+      return (
+        <div>
+          <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+          <ExpensiveComponent data={data} />
+          {/* Without memo: re-renders when count changes
+              With memo: doesn't re-render (data hasn't changed) */}
+        </div>
+      );
+    }
+      
+
+### useMemo - Expensive Calculations
+
+    function ProductList({ products, filter }) {
+      // ❌ Without useMemo - calculates on every render
+      const filteredProducts = products.filter(p => 
+        p.category === filter
+      );
+    
+      // ✅ With useMemo - only recalculates when dependencies change
+      const filteredProducts = useMemo(() => {
+        console.log('Filtering products...');
+        return products.filter(p => p.category === filter);
+      }, [products, filter]);
+    
+      return (
+        
+          {filteredProducts.map(p => (
+            <li key={p.id}>{p.name}</li>
+          ))}
+        
+      );
+    }
+    
+    // Only use for expensive operations!
+    // Don't use for simple calculations like:
+    const total = price * quantity; // This is fast, no need for useMemo
+
+### useCallback - Memoize Functions
+
+    function Parent() {
+      const [count, setCount] = useState(0);
+    
+      // ❌ Without useCallback - new function on every render
+      const handleClick = () => {
+        console.log('Clicked');
+      };
+    
+      // ✅ With useCallback - same function reference
+      const handleClick = useCallback(() => {
+        console.log('Clicked');
+      }, []); // Dependencies array
+    
+      return (
+        
+          <button onClick={() => setCount(count + 1)}>Count: {count}</button>
+          <ExpensiveChild onClick={handleClick} />
+          {/* Without useCallback: ExpensiveChild re-renders
+              With useCallback: ExpensiveChild doesn't re-render */}
+        
+      );
+    }
+    
+    const ExpensiveChild = React.memo(({ onClick }) => {
+      console.log('Rendering ExpensiveChild');
+      return <button onClick={onClick}>Click me;
+    });
+
+### Performance Optimization Summary
+
+Tool
+
+Use Case
+
+Example
+
+`React.memo`
+
+Prevent component re-renders when props haven't changed
+
+Pure display components
+
+`useMemo`
+
+Cache expensive calculations
+
+Filtering large arrays, complex math
+
+`useCallback`
+
+Memoize function references
+
+Callbacks passed to memoized children
+
+⚠️ Only optimize when you have measured performance issues!
+
+Reveal.initialize({ width: 1200, height: 700, slideNumber: 'c/t', controls: true, progress: true, center: true, hash: true, plugins: \[RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight\] });

@@ -1,0 +1,1006 @@
+ Web-Based Application Development — Lecture 10        .reveal pre { width: 100%; font-size: 0.45em; } .reveal code { max-height: 500px; } .note { font-size: 0.7em; color: #666; font-style: italic; } .architecture-diagram { background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; margin: 20px auto; } .box { display: inline-block; padding: 15px 25px; margin: 10px; border: 2px solid #333; border-radius: 5px; background: white; } .arrow { font-size: 2em; margin: 0 10px; } .event-loop-diagram { display: flex; flex-direction: column; gap: 20px; background: #f8f9fa; padding: 30px; border-radius: 10px; margin: 20px 0; } .queue-box { background: #e3f2fd; border: 3px solid #2196f3; padding: 20px; border-radius: 8px; text-align: center; } .stack-box { background: #fff3e0; border: 3px solid #ff9800; padding: 20px; border-radius: 8px; text-align: center; } .callback-hell-viz { margin-left: 0; font-family: monospace; } .callback-hell-viz .level-1 { margin-left: 20px; } .callback-hell-viz .level-2 { margin-left: 40px; } .callback-hell-viz .level-3 { margin-left: 60px; } .callback-hell-viz .level-4 { margin-left: 80px; }
+
+![](https://www.iba.edu.pk/favicon.ico) Institute of Business Administration Karachi
+
+CSE 308: Web Based Application Development - Spring 2026
+
+Web Based Application Development
+---------------------------------
+
+### Week 5 Lecture 10
+
+19th February 2026
+
+### Agenda
+
+*   Understanding Asynchronous JavaScript
+*   The JavaScript Event Loop
+*   From Callbacks to Promises to Async/Await
+*   HTTP Requests with Axios
+*   Connecting React to Express
+*   Building Full CRUD Application
+
+### The Problem with Synchronous Code
+
+#### How JavaScript Normally Runs
+
+JavaScript is single-threaded - it executes one thing at a time
+
+    console.log('Step 1');
+    console.log('Step 2');
+    console.log('Step 3');
+    
+    // Output:
+    // Step 1
+    // Step 2
+    // Step 3
+    
+
+Each line waits for the previous one to finish
+
+#### The Blocking Problem
+
+    console.log('Start');
+    
+    // Imagine this takes 3 seconds (blocking operation)
+    function waitThreeSeconds() {
+      const start = Date.now();
+      while (Date.now() - start < 3000) {
+        // Just waiting... doing nothing
+      }
+      return 'Done waiting';
+    }
+    
+    const result = waitThreeSeconds();  // Everything freezes here!
+    console.log(result);
+    
+    console.log('End');  // This has to wait 3 seconds!
+    
+    // In a browser, the entire page would freeze
+    // - No clicks work
+    // - No animations
+    // - User can't interact with anything
+
+This is terrible user experience!
+
+#### Real-World Blocking Example
+
+**Imagine a restaurant:**
+
+*   Waiter takes order from Customer 1
+*   Waiter goes to kitchen and WAITS for food (20 minutes)
+*   During this time, Customer 2, 3, 4 arrive...
+*   But waiter is BLOCKED waiting for Customer 1's food
+*   Everyone else has to wait!
+
+**This is how synchronous blocking works!**
+
+#### The Solution: Asynchronous Code
+
+**Better restaurant approach:**
+
+*   Waiter takes order from Customer 1
+*   Waiter gives order to kitchen, **doesn't wait**
+*   Waiter takes order from Customer 2, 3, 4...
+*   When food is ready, waiter delivers it
+*   Everyone gets served efficiently!
+
+**This is asynchronous non-blocking!**
+
+### The JavaScript Event Loop
+
+How JavaScript handles asynchronous operations
+
+#### Event Loop Architecture
+
+#### Call Stack
+
+Currently executing code
+
+function3()
+
+function2()
+
+function1()
+
+↓
+
+#### Task Queue (Callback Queue)
+
+Waiting tasks
+
+\[callback1, callback2, callback3\]
+
+**Event Loop**
+
+Checks: "Is call stack empty? Move task from queue to stack!"
+
+#### How Event Loop Works - Step by Step
+
+    console.log('1');
+    
+    setTimeout(() => {
+      console.log('2');
+    }, 0);  // Even with 0 delay!
+    
+    console.log('3');
+    
+    // Output:
+    // 1
+    // 3
+    // 2  (comes last even though delay is 0!)
+    
+
+**Why?**
+
+1.  `console.log('1')` runs immediately
+2.  `setTimeout` sends callback to Task Queue
+3.  `console.log('3')` runs immediately
+4.  Call stack now empty!
+5.  Event loop moves callback from queue to stack
+6.  `console.log('2')` runs
+
+#### Visual: Event Loop Flow
+
+Call Stack          Task Queue          Web APIs
+─────────          ───────────         ─────────
+
+main()             \[empty\]             
+console.log('1')                       
+                                       
+main()             \[empty\]             setTimeout (timer)
+setTimeout()       
+                                       
+main()             \[callback\]          timer done!
+console.log('3')   
+                                       
+\[empty\]            \[callback\]          
+                   ↓
+                 moves to stack
+                   
+callback()         \[empty\]
+console.log('2')
+						
+
+Event loop constantly checks if stack is empty to move queued tasks
+
+#### Real Example: Fetching Data
+
+    console.log('Start fetching...');
+    
+    // This doesn't block!
+    fetch('https://api.example.com/data')
+      .then(response => response.json())
+      .then(data => console.log('Got data:', data));
+    
+    console.log('Doing other stuff...');
+    
+    // Output:
+    // Start fetching...
+    // Doing other stuff...
+    // Got data: { ... }  (comes later when fetch completes)
+    
+
+Your code continues running while fetch happens in the background
+
+### Evolution of Async JavaScript
+
+From Callbacks to Async/Await
+
+#### Solution 1: Callbacks (The Old Way)
+
+    // A callback is a function passed to another function
+    function getData(callback) {
+      setTimeout(() => {
+        const data = { name: 'Alice', age: 25 };
+        callback(data);  // Call the function when done
+      }, 1000);
+    }
+    
+    // Using the callback
+    getData((data) => {
+      console.log('Received:', data);
+    });
+    
+    console.log('Request sent, doing other things...');
+    
+    // Output:
+    // Request sent, doing other things...
+    // Received: { name: 'Alice', age: 25 }  (1 second later)
+    
+
+#### Real-World Callback Example
+
+    // Fetching user, then their posts, then comments
+    function getUser(userId, callback) {
+      setTimeout(() => {
+        console.log('Got user');
+        callback({ id: userId, name: 'Alice' });
+      }, 1000);
+    }
+    
+    getUser(1, (user) => {
+      console.log('User:', user.name);
+      // Now get their posts...
+    });
+    
+    // This is fine for one operation
+    // But what if we need to chain multiple operations?
+    
+
+#### The Problem: Callback Hell
+
+    // Each operation depends on the previous one
+    getUser(1, (user) => {
+      console.log('Got user:', user.name);
+      
+      getPosts(user.id, (posts) => {
+        console.log('Got posts:', posts.length);
+        
+        getComments(posts[0].id, (comments) => {
+          console.log('Got comments:', comments.length);
+          
+          getAuthor(comments[0].authorId, (author) => {
+            console.log('Got author:', author.name);
+            
+            // And it keeps going deeper...
+            // This is called "Callback Hell" or "Pyramid of Doom"
+          });
+        });
+      });
+    });
+    
+
+Hard to read, hard to maintain, hard to handle errors!
+
+#### Callback Hell Visualization
+
+getData(function(a) {
+
+getMoreData(a, function(b) {
+
+getMoreData(b, function(c) {
+
+getMoreData(c, function(d) {
+
+getMoreData(d, function(e) {
+
+// Finally here!
+
+});
+
+});
+
+});
+
+});
+
+});
+
+→ → → → → (Pyramid of Doom)
+
+#### Problems with Callbacks
+
+*   **Callback Hell** - Code becomes deeply nested and hard to read
+*   **Error Handling** - Need to handle errors at every level
+*   **Hard to Debug** - Stack traces are confusing
+*   **Inversion of Control** - You give control to the called function
+
+    // Error handling in callbacks
+    doSomething((err, result) => {
+      if (err) {
+        // handle error
+      } else {
+        doAnother((err2, result2) => {
+          if (err2) {
+            // handle another error
+          } else {
+            // ... and so on
+          }
+        });
+      }
+    });
+    
+
+#### Solution 2: Promises (Better)
+
+A Promise represents a value that may be available now, later, or never
+
+#### What is a Promise?
+
+**A Promise is like a receipt:**
+
+*   You order food (start async operation)
+*   Restaurant gives you a receipt (Promise)
+*   Receipt has 3 states:
+    *   **Pending** - Food is being prepared
+    *   **Fulfilled** - Food is ready! ✓
+    *   **Rejected** - Sorry, we ran out! ✗
+
+#### Creating a Promise
+
+    const myPromise = new Promise((resolve, reject) => {
+      // Do some async work
+      setTimeout(() => {
+        const success = true;
+        
+        if (success) {
+          resolve('Operation successful!');  // Promise fulfilled
+        } else {
+          reject('Operation failed!');  // Promise rejected
+        }
+      }, 1000);
+    });
+    
+    // Promise states:
+    // 1. Pending - initial state
+    // 2. Fulfilled - operation completed successfully (resolve called)
+    // 3. Rejected - operation failed (reject called)
+    
+
+#### Using Promises with .then()
+
+    function getUser(userId) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve({ id: userId, name: 'Alice' });
+        }, 1000);
+      });
+    }
+    
+    // Use the promise
+    getUser(1)
+      .then((user) => {
+        console.log('Got user:', user.name);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    
+    console.log('Request sent!');
+    
+    // Output:
+    // Request sent!
+    // Got user: Alice  (1 second later)
+    
+
+#### Chaining Promises - Solving Callback Hell
+
+    // Before: Callback Hell
+    getUser(1, (user) => {
+      getPosts(user.id, (posts) => {
+        getComments(posts[0].id, (comments) => {
+          console.log(comments);
+        });
+      });
+    });
+    
+    // After: Promise Chain - Much cleaner!
+    getUser(1)
+      .then(user => {
+        console.log('Got user:', user.name);
+        return getPosts(user.id);  // Return next promise
+      })
+      .then(posts => {
+        console.log('Got posts:', posts.length);
+        return getComments(posts[0].id);  // Return next promise
+      })
+      .then(comments => {
+        console.log('Got comments:', comments.length);
+      })
+      .catch(error => {
+        // Handle ALL errors in one place!
+        console.error('Something went wrong:', error);
+      });
+    
+
+Flat, readable, single error handler!
+
+#### Promise Methods
+
+    // Promise.all - Wait for all promises
+    const promise1 = fetch('/api/users');
+    const promise2 = fetch('/api/posts');
+    const promise3 = fetch('/api/comments');
+    
+    Promise.all([promise1, promise2, promise3])
+      .then(([users, posts, comments]) => {
+        console.log('All data loaded!');
+      })
+      .catch(error => {
+        console.error('One failed:', error);
+      });
+    
+    // Promise.race - First one to finish wins
+    Promise.race([promise1, promise2, promise3])
+      .then(result => {
+        console.log('First one done:', result);
+      });
+    
+    // Promise.allSettled - Wait for all, even if some fail
+    Promise.allSettled([promise1, promise2, promise3])
+      .then(results => {
+        // results = [{status:'fulfilled', value:...}, {status:'rejected', reason:...}]
+      });
+    
+
+#### Promises Still Have Issues
+
+    // Still looks nested with complex logic
+    getUserData(userId)
+      .then(user => {
+        if (user.isActive) {
+          return getProfile(user.id)
+            .then(profile => {
+              if (profile.isComplete) {
+                return getPreferences(user.id)
+                  .then(prefs => {
+                    // Getting nested again...
+                  });
+              }
+            });
+        }
+      })
+      .catch(err => console.error(err));
+    
+    // Hard to use with loops
+    // Can't use try/catch syntax we're familiar with
+    // Still not as readable as synchronous code
+    
+
+#### Solution 3: Async/Await (Modern & Best)
+
+Makes asynchronous code look and behave like synchronous code
+
+#### Async/Await Basics
+
+    // The 'async' keyword makes a function return a Promise
+    async function fetchData() {
+      return 'Hello';  // Automatically wrapped in Promise.resolve('Hello')
+    }
+    
+    // The 'await' keyword pauses execution until Promise resolves
+    async function getData() {
+      const result = await fetchData();  // Waits here
+      console.log(result);  // This runs after fetchData completes
+      return result;
+    }
+    
+    // Key rules:
+    // 1. 'await' can only be used inside 'async' functions
+    // 2. 'await' pauses the function, not the entire program
+    // 3. Code after 'await' runs after the Promise resolves
+    
+
+#### Async/Await Example
+
+    // Promise version
+    function getUserWithPromise() {
+      return getUser(1)
+        .then(user => {
+          console.log(user);
+          return getPosts(user.id);
+        })
+        .then(posts => {
+          console.log(posts);
+          return getComments(posts[0].id);
+        })
+        .then(comments => {
+          console.log(comments);
+        });
+    }
+    
+    // Async/Await version - Much more readable!
+    async function getUserWithAsync() {
+      const user = await getUser(1);
+      console.log(user);
+      
+      const posts = await getPosts(user.id);
+      console.log(posts);
+      
+      const comments = await getComments(posts[0].id);
+      console.log(comments);
+    }
+    
+    // Reads like synchronous code but is actually asynchronous!
+    
+
+#### Error Handling with Async/Await
+
+    // Use try/catch - familiar syntax!
+    async function fetchUserData() {
+      try {
+        const user = await getUser(1);
+        console.log('Got user:', user.name);
+        
+        const posts = await getPosts(user.id);
+        console.log('Got posts:', posts.length);
+        
+        const comments = await getComments(posts[0].id);
+        console.log('Got comments:', comments.length);
+        
+      } catch (error) {
+        // Catches errors from ANY await above
+        console.error('Something failed:', error);
+      } finally {
+        // Always runs, success or failure
+        console.log('Cleanup done');
+      }
+    }
+    
+    // Much cleaner than Promise .catch()!
+    
+
+#### Parallel Execution with Async/Await
+
+    // ❌ Sequential - Takes 3 seconds total
+    async function sequential() {
+      const user = await getUser(1);      // 1 second
+      const posts = await getPosts(1);    // 1 second
+      const comments = await getComments(1); // 1 second
+      return { user, posts, comments };
+    }
+    
+    // ✓ Parallel - Takes 1 second total (all run together)
+    async function parallel() {
+      const [user, posts, comments] = await Promise.all([
+        getUser(1),
+        getPosts(1),
+        getComments(1)
+      ]);
+      return { user, posts, comments };
+    }
+    
+    // Use parallel when operations don't depend on each other!
+    
+
+#### Async/Await Best Practices
+
+    // 1. Always use try/catch
+    async function goodExample() {
+      try {
+        const data = await fetchData();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    
+    // 2. Use Promise.all for parallel operations
+    async function fastFetch() {
+      const [users, posts] = await Promise.all([
+        fetchUsers(),
+        fetchPosts()
+      ]);
+    }
+    
+    // 3. Can use await in loops (but be careful of performance)
+    async function processItems(items) {
+      for (const item of items) {
+        await processItem(item);  // Processes one at a time
+      }
+    }
+    
+    // 4. Don't forget to await!
+    async function dontForget() {
+      const result = await fetchData();  // ✓ Correct
+      const result2 = fetchData();       // ❌ Returns Promise, not value!
+    }
+    
+
+### Complete Comparison
+
+#### Callbacks
+
+    getUser(1, (err, user) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      
+      getPosts(user.id, (err, posts) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        
+        console.log(posts);
+      });
+    });
+
+Nested, error handling messy
+
+#### Promises
+
+    getUser(1)
+      .then(user => {
+        return getPosts(user.id);
+      })
+      .then(posts => {
+        console.log(posts);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+
+Better, but still chaining
+
+#### Async/Await
+
+    async function getData() {
+      try {
+        const user = await getUser(1);
+        const posts = await getPosts(user.id);
+        console.log(posts);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+Clean, readable, familiar!
+
+### Making HTTP Requests with Axios
+
+#### Why Axios?
+
+**Advantages over fetch:**
+
+*   Automatically parses JSON responses
+*   Better error handling
+*   Request/response interceptors
+*   Automatic transforms for request data
+*   Can cancel requests
+*   Built-in CSRF protection
+*   Works in older browsers
+
+#### Installing and Setting Up Axios
+
+    # Install axios
+    npm install axios
+
+Create axios instance: `src/api/axios.js`
+
+    import axios from 'axios';
+    
+    const api = axios.create({
+      baseURL: 'http://localhost:3000/api',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true,  // Send cookies
+      timeout: 10000  // 10 second timeout
+    });
+    
+    export default api;
+
+#### Axios with Async/Await
+
+    import api from './api/axios';
+    
+    // GET request
+    async function getStudents() {
+      try {
+        const response = await api.get('/students');
+        console.log(response.data);  // Axios auto-parses JSON!
+        return response.data;
+      } catch (error) {
+        console.error('Error:', error.message);
+        throw error;
+      }
+    }
+    
+    // POST request
+    async function createStudent(studentData) {
+      try {
+        const response = await api.post('/students', studentData);
+        return response.data;
+      } catch (error) {
+        console.error('Error:', error.response?.data);
+        throw error;
+      }
+    }
+
+#### Axios Error Handling
+
+    async function fetchData() {
+      try {
+        const response = await api.get('/students');
+        return response.data;
+      } catch (error) {
+        if (error.response) {
+          // Server responded with error status (4xx, 5xx)
+          console.error('Status:', error.response.status);
+          console.error('Data:', error.response.data);
+        } else if (error.request) {
+          // Request made but no response (server down, network error)
+          console.error('No response received');
+        } else {
+          // Something else went wrong
+          console.error('Error:', error.message);
+        }
+        throw error;
+      }
+    }
+
+### Connecting React to Express Backend
+
+#### Project Setup
+
+    # Create React app with Vite
+    npm create vite@latest frontend -- --template react
+    
+    cd frontend
+    npm install
+    npm install axios
+
+Project structure:
+
+    my-fullstack-app/
+    ├── backend/    # Express server (port 3000)
+    └── frontend/   # React app (port 5173)
+
+#### Development vs Production
+
+**Development:**
+
+*   React Dev Server: `localhost:5173`
+*   Express API: `localhost:3000`
+*   Hot reload for both
+
+**Production:**
+
+*   Build React to static files
+*   Express serves both API + frontend
+*   Single server, one port
+
+#### Fetching Data in React
+
+    import { useState, useEffect } from 'react';
+    import api from '../api/axios';
+    
+    function StudentList() {
+      const [students, setStudents] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState(null);
+    
+      useEffect(() => {
+        fetchStudents();
+      }, []);
+    
+      const fetchStudents = async () => {
+        try {
+          const response = await api.get('/students');
+          setStudents(response.data.data);
+          setLoading(false);
+        } catch (err) {
+          setError(err.message);
+          setLoading(false);
+        }
+      };
+    
+      if (loading) return <div>Loading...</div>;
+      if (error) return <div>Error: {error}</div>;
+    
+      return (
+        <ul>
+          {students.map(student => (
+            <li key={student.id}>{student.name}</li>
+          ))}
+        </ul>
+      );
+    }
+
+#### Creating Data (POST)
+
+    function AddStudent() {
+      const [formData, setFormData] = useState({ name: '', email: '' });
+      const [loading, setLoading] = useState(false);
+    
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        
+        try {
+          await api.post('/students', formData);
+          alert('Student added!');
+          setFormData({ name: '', email: '' });
+        } catch (error) {
+          alert('Error: ' + error.response?.data?.error);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      return (
+        <form onSubmit={handleSubmit}>
+          <input 
+            value={formData.name}
+            onChange={(e) => setFormData({...formData, name: e.target.value})}
+            placeholder="Name"
+            required
+          />
+          <input 
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            placeholder="Email"
+            type="email"
+          />
+          <button disabled={loading}>
+            {loading ? 'Adding...' : 'Add Student'}
+          </button>
+        </form>
+      );
+    }
+
+#### Updating Data (PUT)
+
+    const updateStudent = async (id, updatedData) => {
+      try {
+        const response = await api.put(`/students/${id}`, updatedData);
+        console.log('Updated:', response.data);
+        fetchStudents();  // Refresh list
+      } catch (error) {
+        console.error('Error:', error.response?.data);
+      }
+    };
+
+#### Deleting Data (DELETE)
+
+    const deleteStudent = async (id) => {
+      if (!window.confirm('Delete this student?')) return;
+      
+      try {
+        await api.delete(`/students/${id}`);
+        fetchStudents();  // Refresh list
+      } catch (error) {
+        alert('Error deleting student');
+      }
+    };
+
+#### Complete CRUD Example
+
+    import { useState, useEffect } from 'react';
+    import api from './api/axios';
+    
+    function App() {
+      const [students, setStudents] = useState([]);
+      const [formData, setFormData] = useState({ name: '', email: '' });
+      const [editingId, setEditingId] = useState(null);
+      const [loading, setLoading] = useState(false);
+    
+      useEffect(() => {
+        fetchStudents();
+      }, []);
+    
+      const fetchStudents = async () => {
+        const res = await api.get('/students');
+        setStudents(res.data.data);
+      };
+    
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        
+        try {
+          if (editingId) {
+            await api.put(`/students/${editingId}`, formData);
+            setEditingId(null);
+          } else {
+            await api.post('/students', formData);
+          }
+          setFormData({ name: '', email: '' });
+          fetchStudents();
+        } catch (error) {
+          alert('Error: ' + error.response?.data?.error);
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      const handleDelete = async (id) => {
+        if (window.confirm('Delete?')) {
+          await api.delete(`/students/${id}`);
+          fetchStudents();
+        }
+      };
+    
+      const handleEdit = (student) => {
+        setFormData({ name: student.name, email: student.email });
+        setEditingId(student.id);
+      };
+    
+      return (
+        <div>
+          <h1>Student Management</h1>
+          
+          <form onSubmit={handleSubmit}>
+            <input 
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              placeholder="Name"
+              required
+            />
+            <input 
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              placeholder="Email"
+            />
+            <button disabled={loading}>
+              {loading ? 'Saving...' : editingId ? 'Update' : 'Add'}
+            </button>
+            {editingId && (
+              <button type="button" onClick={() => {
+                setEditingId(null);
+                setFormData({ name: '', email: '' });
+              }}>
+                Cancel
+              </button>
+            )}
+          </form>
+    
+          <ul>
+            {students.map(student => (
+              <li key={student.id}>
+                {student.name} - {student.email}
+                <button onClick={() => handleEdit(student)}>Edit</button>
+                <button onClick={() => handleDelete(student.id)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+
+#### Running Both Servers
+
+**Terminal 1 - Backend:**
+
+    cd backend
+    npm run dev
+
+**Terminal 2 - Frontend:**
+
+    cd frontend
+    npm run dev
+
+Access: `http://localhost:5173`
+
+React makes API calls to `http://localhost:3000`
+
+### Best Practices
+
+#### Async/Await Best Practices
+
+*   Always use try/catch for error handling
+*   Use async/await instead of .then() for readability
+*   Use Promise.all() for parallel operations
+*   Don't forget to await (common mistake!)
+*   Handle loading and error states in React
+*   Use async/await in useEffect carefully
+
+#### React + API Best Practices
+
+*   Create centralized axios instance
+*   Handle loading, error, and success states
+*   Show user feedback (loading spinners, error messages)
+*   Validate data before sending to API
+*   Use environment variables for API URLs
+*   Implement proper error boundaries
+*   Consider adding retry logic for failed requests
+
+#### Project Structure
+
+    frontend/
+    ├── src/
+    │   ├── api/
+    │   │   └── axios.js          # Axios instance
+    │   ├── components/
+    │   │   ├── StudentList.jsx   # Display students
+    │   │   ├── StudentForm.jsx   # Add/edit form
+    │   │   └── StudentItem.jsx   # Single student
+    │   ├── hooks/
+    │   │   └── useStudents.js    # Custom hook for API calls
+    │   ├── App.jsx
+    │   └── main.jsx
+    └── package.json
+
+Reveal.initialize({ width: 1200, height: 700, slideNumber: 'c/t', controls: true, progress: true, center: true, hash: true, plugins: \[RevealZoom, RevealNotes, RevealSearch, RevealMarkdown, RevealHighlight\] });
